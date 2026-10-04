@@ -103,6 +103,19 @@ h1{font-size:clamp(20px,3.4vw,28px);letter-spacing:.01em;line-height:1.2}
 .rail-foot{display:flex;gap:6px 24px;flex-wrap:wrap;margin-top:12px;font-size:13px;color:var(--muted)}
 .rail-foot b{color:var(--fg);font-family:var(--f-num);font-weight:600}
 
+/* heads-up */
+.hu{display:flex;align-items:center;justify-content:space-between;gap:12px 24px;flex-wrap:wrap;margin:-4px 0 18px;padding:12px 18px;border-radius:var(--r);border:1px solid rgba(168,120,255,.55);background:linear-gradient(100deg,rgba(124,77,255,.22),rgba(124,77,255,.06) 60%,var(--surface))}
+.hu-title{display:flex;align-items:center;gap:10px;min-width:0}
+.hu-crown{font-size:30px;color:#c4a6ff;line-height:1}
+.hu-title b{display:block;font-family:"Russo One",var(--f-display);font-weight:400;font-size:15px;color:#fff;letter-spacing:.02em}
+.hu-title span{font-size:12px;color:#c4a6ff}
+.hu-stats{display:flex;gap:28px}
+.hu-stats>div{display:grid;gap:2px}
+.hu-stats .label{color:#b9a3e6}
+.hu-stats .v{font-size:20px;font-weight:600;color:#fff}
+#huPct{color:#c4a6ff}
+@media (max-width:480px){.hu-stats{gap:18px}.hu-stats .v{font-size:18px}}
+
 /* grid */
 .grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px;align-items:start}
 .main,.aside{display:grid;gap:18px;min-width:0}
@@ -219,6 +232,15 @@ body:not(.admin) .admin-only{display:none!important}
       <span>Профит <b id="rfBr">—</b></span>
       <span>Осталось <b id="rfLeft">—</b></span>
       <span>Банкролл <b id="rfX">—</b></span>
+    </div>
+  </section>
+
+  <section class="hu" aria-label="Выигранные хедз-апы">
+    <div class="hu-title"><span class="hu-crown" aria-hidden="true">♛</span><div><b>Выигранные хедз-апы</b><span>для подкормки эго</span></div></div>
+    <div class="hu-stats">
+      <div><span class="label">Сыграно</span><span class="v num" id="huPlayed">—</span></div>
+      <div><span class="label">Выиграно</span><span class="v num" id="huWon">—</span></div>
+      <div><span class="label">Процент побед</span><span class="v num" id="huPct">—</span></div>
     </div>
   </section>
 
@@ -340,6 +362,10 @@ body:not(.admin) .admin-only{display:none!important}
               <div class="field"><label for="sGoal">Цель, $</label><input id="sGoal" inputmode="decimal"></div>
             </div>
             <div class="field"><label for="sDate">Дата старта (день №1)</label><input id="sDate" type="date"></div>
+            <div class="frow">
+              <div class="field"><label for="sHuP">Хедз-апов сыграно</label><input id="sHuP" inputmode="numeric"></div>
+              <div class="field"><label for="sHuW">Хедз-апов выиграно</label><input id="sHuW" inputmode="numeric"></div>
+            </div>
             <div class="fgroup">
               <span class="label">Ключевые точки пути</span>
               <div class="fgroup" id="msFields"></div>
@@ -375,7 +401,7 @@ body:not(.admin) .admin-only{display:none!important}
 <script>
 (() => {
   const ROOMS = 6;
-  const DEFAULT_SETTINGS = { rooms:["GGPoker","PokerStars","ACR","CoinPoker","iPoker","Room 6"], startBR:100, goal:1000000, startDate:"",
+  const DEFAULT_SETTINGS = { rooms:["GGPoker","PokerStars","ACR","CoinPoker","iPoker","Room 6"], startBR:100, goal:1000000, startDate:"", hu:{played:0,won:0},
     milestones:[{br:2000,label:"Доезд на 2 000$ — переход на АБИ $8"},{br:14700,label:"Доезд на 14 700$ — переход на АБИ $30"},{br:18300,label:"Выигрыш турнира на 3 600$ — Китайская серия",minor:true},{br:75000,label:"Следующая вершина при БР 50–100k — пока не покорена"}] };
   let settings = structuredClone(DEFAULT_SETTINGS);
   let sessions = [];
@@ -586,6 +612,12 @@ body:not(.admin) .admin-only{display:none!important}
   let tx=null; $("proofBox").addEventListener("touchstart",e=>{ tx=e.touches[0].clientX; },{passive:true});
   $("proofBox").addEventListener("touchend",e=>{ if(tx==null) return; const dx=e.changedTouches[0].clientX-tx; if(Math.abs(dx)>50) showProof(proofI+(dx<0?1:-1)); tx=null; });
 
+  function renderHu(){
+    const h=settings.hu||{played:0,won:0}, pl=+h.played||0, wn=+h.won||0;
+    $("huPlayed").textContent=nf.format(pl); $("huWon").textContent=nf.format(wn);
+    $("huPct").textContent= pl ? Math.round(wn/pl*100)+"%" : "—";
+  }
+
   /* ---------- render: tiles ---------- */
   function renderTiles(c){
     const n=c.rows.length;
@@ -716,6 +748,7 @@ body:not(.admin) .admin-only{display:none!important}
     $("roomFields").innerHTML=settings.rooms.map((n,i)=>`<div class="field"><label for="fR${i}">${esc(n||("Рум "+(i+1)))}</label><input id="fR${i}" inputmode="decimal" placeholder="0"></div>`).join("");
     $("roomNameFields").innerHTML=settings.rooms.map((n,i)=>`<div class="field"><label for="sR${i}">Рум ${i+1}</label><input id="sR${i}" value="${esc(n)}"></div>`).join("");
     $("sStart").value=settings.startBR; $("sGoal").value=settings.goal; $("sDate").value=settings.startDate||"";
+    $("sHuP").value=settings.hu?.played??0; $("sHuW").value=settings.hu?.won??0;
     msDraft=(settings.milestones||[]).map(m=>({...m})); drawMs();
   }
   let msDraft=[];
@@ -774,7 +807,7 @@ body:not(.admin) .admin-only{display:none!important}
   });
   $("setForm").addEventListener("submit",async e=>{
     e.preventDefault(); if(!store) return;
-    const st={ rooms:[...Array(ROOMS)].map((_,i)=>$("sR"+i).value.trim()||("Рум "+(i+1))), startBR:parse($("sStart").value)||100, goal:parse($("sGoal").value)||1e6, startDate:$("sDate").value||"", milestones:(syncMs(),msDraft.filter(m=>m.br>0&&m.label)) };
+    const st={ rooms:[...Array(ROOMS)].map((_,i)=>$("sR"+i).value.trim()||("Рум "+(i+1))), startBR:parse($("sStart").value)||100, goal:parse($("sGoal").value)||1e6, startDate:$("sDate").value||"", hu:{played:Math.round(parse($("sHuP").value)),won:Math.round(parse($("sHuW").value))}, milestones:(syncMs(),msDraft.filter(m=>m.br>0&&m.label)) };
     try{ await store.saveSettings(st); flash("setMsg","Настройки сохранены."); }catch(err){ flash("setMsg","Не сохранилось: "+(err.message||err.code),true); }
   });
 
@@ -789,7 +822,7 @@ body:not(.admin) .admin-only{display:none!important}
     const saved = sessions; if(demo) sessions = demoSessions();
     const c = compute();
     sessions = saved;
-    renderRail(c); renderTiles(c); renderBr(c); renderMtt(c); renderWallets(c); renderHist(c);
+    renderRail(c); renderHu(); renderTiles(c); renderBr(c); renderMtt(c); renderWallets(c); renderHist(c);
     const b=$("modeBadge");
     if(demo){ b.textContent="Пример данных — исчезнет после первой сессии"; b.className="badge demo"; }
     else { const lastD=real.length?compute().rows.slice(-1)[0].date:null; b.textContent = isAdmin ? "Режим автора" : (lastD?"Обновлено "+dShort(lastD):"Старт скоро"); b.className=isAdmin?"badge demo":"badge"; }
