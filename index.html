@@ -3,20 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0c0e12">
-<title>Марафон 100 → 1M</title>
+<meta name="theme-color" content="#160f1d">
+<title>BudiValen покоряет планету</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
 /* Layout: personal ledger — progress rail on top, main column of charts/history, side "cash desk" with the session form. Single dark look by choice. */
 :root{
-  --bg:#0c0e12;
-  --surface:#14171d;
-  --surface-2:#1b1f27;
-  --line:#262b35;
-  --fg:#e9e6df;
-  --muted:#8b8f99;
+  --bg:#160f1d;
+  --surface:#20172a;
+  --surface-2:#2a1f36;
+  --line:#3a2c48;
+  --fg:#f1eaf3;
+  --muted:#a395b0;
   --brass:#d6a54a;
   --brass-soft:rgba(214,165,74,.14);
   --up:#43c08a;
@@ -28,7 +28,7 @@
   color-scheme:dark;
 }
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.45;margin:0}
+body{background:radial-gradient(1200px 600px at 85% -10%,#3a1f4a 0%,transparent 60%),radial-gradient(900px 500px at -10% 110%,#1f2a4a 0%,transparent 55%),var(--bg);background-attachment:fixed;color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.45;margin:0}
 .wrap{max-width:1120px;margin:0 auto;padding:20px 16px 48px}
 .num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
 .up{color:var(--up)}.down{color:var(--down)}.muted{color:var(--muted)}
@@ -79,6 +79,12 @@ h2{font-size:14px;letter-spacing:.04em;text-transform:uppercase}
 .tile .v{font-family:var(--f-num);font-size:21px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tile .s{font-size:12px;color:var(--muted)}
 
+/* hands / winrate split */
+.split{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--line);gap:1px}
+.half{background:var(--surface);padding:18px 20px;display:grid;gap:6px;min-width:0}
+.half .big{font-size:clamp(24px,4vw,34px);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.half .s{font-size:12px;color:var(--muted)}
+
 /* segmented */
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
 .seg button{background:transparent;border:0;padding:6px 11px;font-size:12px;color:var(--muted)}
@@ -101,7 +107,7 @@ h2{font-size:14px;letter-spacing:.04em;text-transform:uppercase}
 .field label{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .field input{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-family:var(--f-num);font-size:14px;min-width:0}
 .field input:focus{border-color:var(--brass);outline:none}
-.preview{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:var(--surface-2);border-radius:8px;padding:10px 12px}
+.preview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;background:var(--surface-2);border-radius:8px;padding:10px 12px}
 .preview .v{font-family:var(--f-num);font-weight:600;font-size:17px}
 .btn{background:var(--brass);color:#1a1408;border:0;border-radius:8px;padding:11px 14px;font-weight:600}
 .btn:disabled{opacity:.5;cursor:not-allowed}
@@ -114,13 +120,13 @@ h2{font-size:14px;letter-spacing:.04em;text-transform:uppercase}
 .wl{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;font-size:13px}
 .wl .bar{grid-column:1/-1;height:4px;border-radius:2px;background:var(--surface-2);overflow:hidden}
 .wl .bar i{display:block;height:100%;background:var(--brass)}
-.wl.wal .bar i{background:#7f8aa3}
+.wl.wal .bar i{background:#8f7fb0}
 .totals{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
 .totals .v{font-family:var(--f-num);font-weight:600}
 
 /* table */
 .tbl-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:720px}
 th{font-weight:600;text-align:right;color:var(--muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:8px;border-bottom:1px solid var(--line)}
 td{text-align:right;padding:8px;border-bottom:1px solid var(--line);font-family:var(--f-num);font-variant-numeric:tabular-nums}
 th:first-child,td:first-child{text-align:left}
@@ -150,7 +156,7 @@ body:not(.admin) .admin-only{display:none!important}
   <header class="top">
     <div class="brand">
       <div class="chip" aria-hidden="true"></div>
-      <h1>Марафон $100 → $1 000 000<small id="subtitle">Личный трекер банкролла</small></h1>
+      <h1>BudiValen покоряет планету<small id="subtitle">Цель: от $100 до $1 000 000</small></h1>
     </div>
     <span class="badge" id="modeBadge">Загрузка…</span>
   </header>
@@ -173,6 +179,11 @@ body:not(.admin) .admin-only{display:none!important}
   <div class="grid">
     <div class="main">
       <div class="tiles" id="tiles"></div>
+
+      <section class="split" aria-label="Руки и винрейт">
+        <div class="half"><span class="label">Сыграно рук</span><span class="big num" id="hHands">—</span><span class="s" id="hHandsS"></span></div>
+        <div class="half"><span class="label">Винрейт · bb/100</span><span class="big num" id="hWr">—</span><span class="s" id="hWrS"></span></div>
+      </section>
 
       <section class="card">
         <div class="card-head">
@@ -207,7 +218,7 @@ body:not(.admin) .admin-only{display:none!important}
         </div>
         <div class="tbl-wrap">
           <table>
-            <thead><tr><th>Дата</th><th>День</th><th>МТТ</th><th>БР</th><th>Сессия</th><th>Вывод</th><th>РБ</th><th></th></tr></thead>
+            <thead><tr><th>Дата</th><th>День</th><th>МТТ</th><th>АБИ</th><th>bb/100</th><th>БР</th><th>Сессия</th><th>Вывод</th><th>РБ</th><th></th></tr></thead>
             <tbody id="hist"></tbody>
           </table>
         </div>
@@ -238,6 +249,14 @@ body:not(.admin) .admin-only{display:none!important}
             </div>
           </div>
           <div class="fgroup">
+            <span class="label">Игра</span>
+            <div class="frow">
+              <div class="field"><label for="fBuy">Сумма бай-инов, $</label><input id="fBuy" inputmode="decimal" placeholder="0"></div>
+              <div class="field"><label for="fHands">Рук сыграно</label><input id="fHands" inputmode="numeric" placeholder="0"></div>
+              <div class="field"><label for="fWr">Винрейт, bb/100</label><input id="fWr" inputmode="decimal" placeholder="из трекера"></div>
+            </div>
+          </div>
+          <div class="fgroup">
             <span class="label">За сессию</span>
             <div class="frow">
               <div class="field"><label for="fWd">Вывод</label><input id="fWd" inputmode="decimal" placeholder="0"></div>
@@ -247,6 +266,7 @@ body:not(.admin) .admin-only{display:none!important}
           <div class="preview">
             <div><div class="label">Новый БР</div><div class="v" id="pvBr">—</div></div>
             <div><div class="label">Сессия</div><div class="v" id="pvRes">—</div></div>
+            <div><div class="label">АБИ</div><div class="v" id="pvAbi">—</div></div>
           </div>
           <div class="actions">
             <button type="submit" class="btn" id="saveBtn">Сохранить сессию</button>
@@ -286,7 +306,7 @@ body:not(.admin) .admin-only{display:none!important}
     </aside>
   </div>
   <footer class="foot">
-    <span id="updated">Марафон $100 → $1 000 000</span>
+    <span id="updated">BudiValen покоряет планету · $100 → $1 000 000</span>
     <span><button class="linkbtn" id="loginBtn" type="button">Вход для автора</button><button class="linkbtn" id="logoutBtn" type="button" hidden>Выйти</button></span>
   </footer>
   <section class="card login" id="loginCard" hidden>
@@ -317,6 +337,7 @@ body:not(.admin) .admin-only{display:none!important}
   const money = v => (v<0?"−":"") + nf.format(Math.abs(Math.round(v))) + "$";
   const signed = v => (v>0?"+":v<0?"−":"") + nf.format(Math.abs(Math.round(v))) + "$";
   const short = v => { const a=Math.abs(v), s=v<0?"−":""; if(a>=1e6) return s+"$"+(a/1e6).toFixed(a>=1e7?0:2).replace(/\.?0+$/,"")+"M"; if(a>=1e3) return s+"$"+(a/1e3).toFixed(a>=1e5?0:1).replace(/\.0$/,"")+"k"; return s+"$"+Math.round(a); };
+  const abiFmt = v => "$"+(v>=100?Math.round(v):v.toFixed(2).replace(".",","));
   const cls = v => v>0?"up":v<0?"down":"";
   const parse = s => { if(s==null) return 0; const n=parseFloat(String(s).replace(/\s/g,"").replace(",",".")); return isFinite(n)?n:0; };
   const today = () => { const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
@@ -329,18 +350,21 @@ body:not(.admin) .admin-only{display:none!important}
     const list = sessions.slice().sort((a,b)=> a.date===b.date ? (a.ts||0)-(b.ts||0) : a.date<b.date?-1:1);
     const start = settings.startBR || 100;
     const startDate = settings.startDate || (list[0]?.date) || today();
-    let prev = start, totW=0, totR=0, totM=0, plus=0, peak=start;
+    let prev = start, totW=0, totR=0, totM=0, plus=0, peak=start, buySum=0, buyM=0, hands=0, wrH=0, wrSum=0;
     const rows = list.map(s=>{
       const rooms=(s.rooms||[]).map(Number);
       const br = rooms.reduce((a,b)=>a+(+b||0),0) + (+s.off||0) + (+s.usdt||0);
       const res = br - prev + (+s.withdraw||0);
+      if(+s.buyins && +s.mtt){ buySum+=+s.buyins; buyM+=+s.mtt; }
+      hands += +s.hands||0; if(s.wr!=null && s.wr!=="" && +s.hands){ wrH+=+s.hands; wrSum+=(+s.wr)*(+s.hands); }
       prev = br; totW += +s.withdraw||0; totR += +s.rakeback||0; totM += +s.mtt||0; if(res>0) plus++; peak=Math.max(peak,br);
-      return {...s, br, res, day: dayDiff(startDate, s.date)+1};
+      return {...s, br, res, day: dayDiff(startDate, s.date)+1, abi: (+s.buyins && +s.mtt) ? s.buyins/s.mtt : null};
     });
     const last = rows[rows.length-1];
     const br = last ? last.br : start;
     const profit = br + totW - start;
     return { rows, start, br, profit, totW, totR, totM, plus, peak, startDate,
+      abi: buyM ? buySum/buyM : null, hands, wr: wrH ? wrSum/wrH : null,
       perMtt: totM ? profit/totM : 0,
       day: last ? last.day : 0,
       lastRooms: last ? last.rooms : [], lastOff: last ? +last.off||0 : 0, lastUsdt: last ? +last.usdt||0 : 0 };
@@ -360,7 +384,7 @@ body:not(.admin) .admin-only{display:none!important}
       const rb = Math.max(1,Math.round(total*0.012));
       if(i%7===6){ usdt += Math.round(rooms[0]*0.2); rooms[0]=Math.round(rooms[0]*0.8); }
       const dt=new Date(d0+i*864e5*1.4); const ds=dt.toISOString().slice(0,10);
-      out.push({id:"demo"+i,date:ds,ts:i,mtt,rooms:rooms.slice(),off,usdt,withdraw:wd,rakeback:rb});
+      out.push({id:"demo"+i,date:ds,ts:i,mtt,rooms:rooms.slice(),off,usdt,withdraw:wd,rakeback:rb,buyins:Math.round(mtt*(0.3+i*0.02)*100)/100,hands:mtt*55,wr:Math.round((rnd()*16-4)*10)/10});
     }
     return out;
   }
@@ -465,9 +489,15 @@ body:not(.admin) .admin-only{display:none!important}
       ["Сессий", nf.format(n), "", n?"последняя "+dShort(c.rows[n-1].date):""],
       ["Турниров", nf.format(c.totM), "", "за весь марафон"],
       ["МТТ / сессия", n?nf.format(Math.round(c.totM/n)):"—", "", "в среднем"],
-      ["Плюсовых сессий", n?Math.round(c.plus/n*100)+"%":"—", "", n?c.plus+" из "+n:""],
-      ["$ / МТТ", c.totM?(c.perMtt>=0?"+":"−")+Math.abs(c.perMtt).toFixed(2).replace(".",",")+"$":"—", cls(c.perMtt), "профит на турнир"]
+      ["$ / МТТ", c.totM?(c.perMtt>=0?"+":"−")+Math.abs(c.perMtt).toFixed(2).replace(".",",")+"$":"—", cls(c.perMtt), "профит на турнир"],
+      ["АБИ", c.abi!=null?abiFmt(c.abi):"—", "", c.abi!=null&&n&&c.rows[n-1].abi!=null?"последняя "+abiFmt(c.rows[n-1].abi):"средний бай-ин"]
     ];
+    const lastH=[...c.rows].reverse().find(r=>+r.hands), lastW=[...c.rows].reverse().find(r=>r.wr!=null&&r.wr!=="");
+    $("hHands").textContent = c.hands ? nf.format(c.hands) : "—";
+    $("hHandsS").textContent = lastH ? "за последнюю сессию "+nf.format(lastH.hands) : "вписывается при закрытии сессии";
+    $("hWr").textContent = c.wr!=null ? (c.wr>=0?"+":"−")+Math.abs(c.wr).toFixed(1).replace(".",",") : "—";
+    $("hWr").className = "big num "+(c.wr!=null?cls(c.wr):"");
+    $("hWrS").textContent = lastW ? "последняя сессия "+(+lastW.wr>=0?"+":"−")+Math.abs(+lastW.wr).toFixed(1).replace(".",",") : "среднее по рукам, из трекера";
     $("tiles").innerHTML=t.map(([l,v,k,s])=>`<div class="tile"><span class="label">${l}</span><span class="v ${k}">${v}</span>${s?`<span class="s">${s}</span>`:""}</div>`).join("");
   }
 
@@ -504,7 +534,7 @@ body:not(.admin) .admin-only{display:none!important}
     const Y=v=> T + (H-T-B)*(1-(f(v)-y0)/(y1-y0||1));
     let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="График банкролла">`;
     s+=`<defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d6a54a" stop-opacity=".22"/><stop offset="1" stop-color="#d6a54a" stop-opacity="0"/></linearGradient></defs>`;
-    ticks.forEach(v=>{ const y=Y(v); s+=`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="#262b35" stroke-width="1"/><text x="${L-8}" y="${y+4}" text-anchor="end">${short(v)}</text>`; });
+    ticks.forEach(v=>{ const y=Y(v); s+=`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="#3a2c48" stroke-width="1"/><text x="${L-8}" y="${y+4}" text-anchor="end">${short(v)}</text>`; });
     // goal line if within view
     const goal=settings.goal||1e6; if(goal<=mx && goal>=mn){ const y=Y(goal); s+=`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="#d6a54a" stroke-dasharray="4 4"/>`; }
     // area
@@ -518,10 +548,10 @@ body:not(.admin) .admin-only{display:none!important}
     let pi=0; pts.forEach((p,i)=>{ if(p.br>=pts[pi].br) pi=i; });
     const px=X(pi), py=Y(pts[pi].br);
     const lab="пик "+short(pts[pi].br); const lw=lab.length*7+14; const lx=Math.min(Math.max(px-lw/2,L),W-R-lw);
-    s+=`<rect x="${lx}" y="${Math.max(2,py-26)}" width="${lw}" height="18" rx="5" fill="#1b1f27" stroke="#d6a54a"/><text x="${lx+lw/2}" y="${Math.max(2,py-26)+13}" text-anchor="middle" style="fill:#d6a54a">${lab}</text>`;
+    s+=`<rect x="${lx}" y="${Math.max(2,py-26)}" width="${lw}" height="18" rx="5" fill="#2a1f36" stroke="#d6a54a"/><text x="${lx+lw/2}" y="${Math.max(2,py-26)+13}" text-anchor="middle" style="fill:#d6a54a">${lab}</text>`;
     // last point
-    const li=pts.length-1; s+=`<circle cx="${X(li)}" cy="${Y(pts[li].br)}" r="4.5" fill="#d6a54a" stroke="#0c0e12" stroke-width="2"/>`;
-    s+=`<line id="hx" x1="0" x2="0" y1="${T}" y2="${H-B}" stroke="#8b8f99" stroke-dasharray="2 3" visibility="hidden"/><circle id="hc" r="4" fill="#e9e6df" visibility="hidden"/>`;
+    const li=pts.length-1; s+=`<circle cx="${X(li)}" cy="${Y(pts[li].br)}" r="4.5" fill="#d6a54a" stroke="#160f1d" stroke-width="2"/>`;
+    s+=`<line id="hx" x1="0" x2="0" y1="${T}" y2="${H-B}" stroke="#a395b0" stroke-dasharray="2 3" visibility="hidden"/><circle id="hc" r="4" fill="#f1eaf3" visibility="hidden"/>`;
     s+=`<rect x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}" fill="transparent" id="hit"/></svg><div class="tip" id="tip" hidden></div>`;
     box.innerHTML=s;
     const svg=box.querySelector("svg"), tip=$("tip"), hx=svg.querySelector("#hx"), hc=svg.querySelector("#hc");
@@ -548,7 +578,7 @@ body:not(.admin) .admin-only{display:none!important}
     const bw=(W-L-R)/rows.length;
     const Y=v=>T+(H-T-B)*(1-v/mx);
     let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Турниров за сессию">`;
-    for(let v=0;v<=mx;v+=st){ s+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="#262b35"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end">${v}</text>`; }
+    for(let v=0;v<=mx;v+=st){ s+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="#3a2c48"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end">${v}</text>`; }
     rows.forEach((r,i)=>{ const v=+r.mtt||0; const h=(H-T-B)*v/mx; s+=`<rect x="${L+i*bw+bw*0.18}" y="${Y(v)}" width="${Math.max(1,bw*0.64)}" height="${h}" rx="2" fill="${r.res>=0?"#43c08a":"#e8575c"}" fill-opacity=".75"><title>${dShort(r.date)}: ${v} МТТ, ${signed(r.res)}</title></rect>`; });
     s+=`<line x1="${L}" x2="${W-R}" y1="${Y(avg)}" y2="${Y(avg)}" stroke="#d6a54a" stroke-dasharray="4 4"/>`;
     s+=`<text x="${L}" y="${H-6}">${dShort(rows[0].date)}</text><text x="${W-R}" y="${H-6}" text-anchor="end">${dShort(rows[rows.length-1].date)}</text>`;
@@ -570,9 +600,9 @@ body:not(.admin) .admin-only{display:none!important}
   function renderHist(c){
     const rows=c.rows.slice().reverse(); const shown = showAll?rows:rows.slice(0,15);
     $("histCount").textContent = rows.length ? rows.length+" записей" : "";
-    if(!rows.length){ $("hist").innerHTML=`<tr><td colspan="8" class="empty" style="text-align:center;font-family:var(--f-body)">Сессий пока нет.</td></tr>`; $("moreBtn").hidden=true; return; }
+    if(!rows.length){ $("hist").innerHTML=`<tr><td colspan="10" class="empty" style="text-align:center;font-family:var(--f-body)">Сессий пока нет.</td></tr>`; $("moreBtn").hidden=true; return; }
     $("hist").innerHTML=shown.map(r=>`<tr class="${r.id===editingId?"editing":""}">
-      <td>${dShort(r.date)}</td><td>#${r.day}</td><td>${nf.format(+r.mtt||0)}</td><td>${money(r.br)}</td>
+      <td>${dShort(r.date)}</td><td>#${r.day}</td><td>${nf.format(+r.mtt||0)}</td><td>${r.abi!=null?abiFmt(r.abi):"—"}</td><td>${r.wr!=null&&r.wr!==""?(+r.wr).toFixed(1).replace(".",","):"—"}</td><td>${money(r.br)}</td>
       <td class="${cls(r.res)}">${signed(r.res)}</td><td>${+r.withdraw?money(r.withdraw):"—"}</td><td>${+r.rakeback?money(r.rakeback):"—"}</td>
       <td style="white-space:nowrap">${demo||!isAdmin?"":`<button class="rowbtn" data-edit="${r.id}" aria-label="Изменить">✎</button><button class="rowbtn ${armed===r.id?"danger":""}" data-del="${r.id}">${armed===r.id?"Удалить?":"×"}</button>`}</td></tr>`).join("");
     $("moreBtn").hidden = rows.length<=15; $("moreBtn").textContent = showAll?"Свернуть":"Показать все ("+rows.length+")";
@@ -597,11 +627,12 @@ body:not(.admin) .admin-only{display:none!important}
   function readForm(){
     return { date:$("fDate").value||today(), mtt:Math.round(parse($("fMtt").value)),
       rooms:[...Array(ROOMS)].map((_,i)=>parse($("fR"+i).value)),
-      off:parse($("fOff").value), usdt:parse($("fUsdt").value), withdraw:parse($("fWd").value), rakeback:parse($("fRb").value) };
+      off:parse($("fOff").value), usdt:parse($("fUsdt").value), withdraw:parse($("fWd").value), rakeback:parse($("fRb").value),
+      buyins:parse($("fBuy").value), hands:Math.round(parse($("fHands").value)), wr:$("fWr").value.trim()===""?null:parse($("fWr").value) };
   }
   function prefill(){
     const c=compute(); const last=c.rows[c.rows.length-1];
-    $("fDate").value=today(); $("fMtt").value=""; $("fWd").value=""; $("fRb").value="";
+    $("fDate").value=today(); $("fMtt").value=""; $("fWd").value=""; $("fRb").value=""; $("fBuy").value=""; $("fHands").value=""; $("fWr").value="";
     for(let i=0;i<ROOMS;i++) $("fR"+i).value = last && +last.rooms[i] ? last.rooms[i] : "";
     $("fOff").value = last && +last.off ? last.off : ""; $("fUsdt").value = last && +last.usdt ? last.usdt : "";
     updatePreview();
@@ -614,6 +645,7 @@ body:not(.admin) .admin-only{display:none!important}
   function updatePreview(){
     const f=readForm(); const br=f.rooms.reduce((a,b)=>a+b,0)+f.off+f.usdt; const res=br-prevBrFor()+f.withdraw;
     $("pvBr").textContent=money(br); $("pvRes").textContent=signed(res); $("pvRes").className="v "+cls(res);
+    $("pvAbi").textContent = f.buyins&&f.mtt ? abiFmt(f.buyins/f.mtt) : "—";
   }
   $("sessForm").addEventListener("input",updatePreview);
   function startEdit(id){
@@ -621,6 +653,7 @@ body:not(.admin) .admin-only{display:none!important}
     $("fDate").value=s.date; $("fMtt").value=s.mtt||"";
     for(let i=0;i<ROOMS;i++) $("fR"+i).value=+(s.rooms||[])[i]||"";
     $("fOff").value=+s.off||""; $("fUsdt").value=+s.usdt||""; $("fWd").value=+s.withdraw||""; $("fRb").value=+s.rakeback||"";
+    $("fBuy").value=+s.buyins||""; $("fHands").value=+s.hands||""; $("fWr").value=(s.wr==null?"":s.wr);
     $("formTitle").textContent="Правка сессии"; $("formHint").textContent=dShort(s.date); $("saveBtn").textContent="Сохранить изменения"; $("cancelEdit").hidden=false;
     updatePreview(); render(); $("sessForm").scrollIntoView({behavior:"smooth",block:"start"});
   }
@@ -659,7 +692,7 @@ body:not(.admin) .admin-only{display:none!important}
     const b=$("modeBadge");
     if(demo){ b.textContent="Пример данных — исчезнет после первой сессии"; b.className="badge demo"; }
     else { const lastD=real.length?compute().rows.slice(-1)[0].date:null; b.textContent = isAdmin ? "Режим автора" : (lastD?"Обновлено "+dShort(lastD):"Старт скоро"); b.className=isAdmin?"badge demo":"badge"; }
-    $("subtitle").textContent = "Личный трекер банкролла · старт "+money(settings.startBR||100);
+    $("subtitle").textContent = "Цель: от "+money(settings.startBR||100)+" до "+money(settings.goal||1e6);
   }
   let rt; addEventListener("resize",()=>{ clearTimeout(rt); rt=setTimeout(render,120); });
 
