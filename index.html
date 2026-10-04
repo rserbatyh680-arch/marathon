@@ -29,6 +29,7 @@
   color-scheme:dark;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.45;margin:0}
 .wrap{max-width:1120px;margin:0 auto;padding:20px 16px 48px}
 .num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
@@ -46,6 +47,15 @@ button{cursor:pointer}
 .who{display:grid;gap:2px;min-width:0}
 .who .name{font-family:var(--f-display);font-size:13px;font-weight:500;color:#fff;letter-spacing:.04em}
 .who h1{font-family:"Russo One",var(--f-display);font-weight:400;color:var(--brass);letter-spacing:.02em}
+.proof-btn{justify-self:start;display:inline-flex;align-items:center;gap:8px;margin-top:6px;background:var(--brass-soft);border:1px solid var(--brass);color:var(--fg);border-radius:999px;padding:5px 14px;font-size:13px;white-space:nowrap}
+.proof-btn img{width:22px;height:22px;border-radius:50%;object-fit:cover;object-position:50% 58%}
+.proof-btn b{color:var(--brass);text-transform:uppercase;letter-spacing:.06em;font-size:12px}
+.proof-btn:hover{background:rgba(214,165,74,.25)}
+.lightbox{position:fixed;inset:0;z-index:50;background:rgba(5,6,8,.88);display:grid;place-items:center;padding:calc(env(safe-area-inset-top,0px) + 16px) 16px calc(env(safe-area-inset-bottom,0px) + 16px)}
+.lightbox figure{margin:0;display:grid;gap:10px;justify-items:center;max-height:100%}
+.lightbox img{max-height:calc(100vh - 120px);width:auto;max-width:100%;border-radius:12px;border:1px solid var(--line)}
+.lightbox figcaption{font-size:13px;color:var(--muted);text-align:center;max-width:420px}
+.lightbox .close{position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);right:16px;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;width:40px;height:40px;font-size:20px}
 .chip{width:38px;height:38px;border-radius:50%;flex:none;background:
   repeating-conic-gradient(var(--brass) 0 22.5deg,var(--surface-2) 22.5deg 45deg);display:grid;place-items:center}
 .chip::after{content:"";width:24px;height:24px;border-radius:50%;background:var(--bg);border:2px solid var(--brass)}
@@ -184,7 +194,8 @@ body:not(.admin) .admin-only{display:none!important}
   <header class="top">
     <div class="brand">
       <img class="avatar" src="avatar.jpg" alt="BudiValen" width="84" height="84">
-      <div class="who"><span class="name">BudiValen покоряет планету</span><h1 id="subtitle">Цель: от $100 до $1 000 000</h1></div>
+      <div class="who"><span class="name">BudiValen покоряет планету</span><h1 id="subtitle">Цель: от $100 до $1 000 000</h1>
+        <button type="button" class="proof-btn" id="proofBtn"><b>Пруф</b><span>запись от 24 мая 2026 ↗</span></button></div>
     </div>
     <span class="badge" id="modeBadge">Загрузка…</span>
   </header>
@@ -337,6 +348,10 @@ body:not(.admin) .admin-only{display:none!important}
         </details>
       </section>
     </aside>
+  </div>
+  <div class="lightbox" id="proofBox" hidden role="dialog" aria-label="Пруф старта марафона">
+    <button type="button" class="close" id="proofClose" aria-label="Закрыть">×</button>
+    <figure><img src="proof.jpg" alt="Заметка в телефоне: «Цель 1 млн долларов в покере», 24 мая 2026" loading="lazy"><figcaption>Заметка в телефоне от 24 мая 2026: «Цель 1 млн долларов в покере». Личные заметки размыты.</figcaption></figure>
   </div>
   <footer class="foot">
     <span id="updated">BudiValen покоряет планету · $100 → $1 000 000</span>
@@ -549,6 +564,11 @@ body:not(.admin) .admin-only{display:none!important}
   $("track").addEventListener("focusout",hideTip);
   $("track").addEventListener("click",e=>{ const d=e.target.closest(".ms-dot"); if(d){ showTip(d); e.stopPropagation(); } });
   document.addEventListener("click",hideTip);
+
+  $("proofBtn").onclick=()=>{ $("proofBox").hidden=false; $("proofClose").focus(); };
+  $("proofClose").onclick=()=>{ $("proofBox").hidden=true; };
+  $("proofBox").addEventListener("click",e=>{ if(e.target.id==="proofBox") $("proofBox").hidden=true; });
+  document.addEventListener("keydown",e=>{ if(e.key==="Escape") $("proofBox").hidden=true; });
 
   /* ---------- render: tiles ---------- */
   function renderTiles(c){
