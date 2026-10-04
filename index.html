@@ -205,7 +205,6 @@ body:not(.admin) .admin-only{display:none!important}
       <span>Профит <b id="rfBr">—</b></span>
       <span>Осталось <b id="rfLeft">—</b></span>
       <span>Банкролл <b id="rfX">—</b></span>
-      <span>Турниров до цели текущим темпом <b id="rfMtt">—</b></span>
     </div>
   </section>
 
@@ -539,7 +538,6 @@ body:not(.admin) .admin-only{display:none!important}
     $("rfBr").textContent=signed(c.profit)+" из "+money(goal);
     $("rfLeft").textContent=money(Math.max(0,goal-c.profit));
     $("rfX").textContent=money(c.br);
-    $("rfMtt").textContent = c.perMtt>0 ? "~"+nf.format(Math.round(Math.max(0,goal-c.profit)/c.perMtt)) : "—";
   }
 
   function showTip(d){ const tip=$("msTip"), rail=d.closest(".rail"); tip.innerHTML=d.dataset.tip; tip.hidden=false;
