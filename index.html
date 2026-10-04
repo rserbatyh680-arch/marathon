@@ -52,6 +52,19 @@ button{cursor:pointer}
 .proof-btn.wins{border-color:#43c08a;background:rgba(67,192,138,.14)}
 .proof-btn.wins b{color:#43c08a}
 .proof-btn.wins:hover{background:rgba(67,192,138,.25)}
+.proof-btn.story{border-color:#8fb4ff;background:rgba(143,180,255,.12)}
+.proof-btn.story b{color:#8fb4ff}
+.proof-btn.story:hover{background:rgba(143,180,255,.22)}
+.story-box{position:fixed;inset:0;z-index:50;background:rgba(5,6,8,.88);display:grid;place-items:center;padding:calc(env(safe-area-inset-top,0px) + 16px) 16px calc(env(safe-area-inset-bottom,0px) + 16px)}
+.story-card{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:14px;max-width:680px;width:100%;max-height:100%;overflow:auto;padding:28px 26px 30px}
+.story-card h2{font-family:"Russo One",var(--f-display);font-weight:400;font-size:22px;text-transform:none;letter-spacing:.01em;color:#fff;margin:0 40px 18px 0}
+.story-card h3{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:22px 0 10px}
+.story-card ol{margin:0;padding:0;list-style:none;display:grid;gap:10px;counter-reset:st}
+.story-card li{counter-increment:st;display:grid;grid-template-columns:30px 1fr;gap:10px;line-height:1.55;font-size:15px}
+.story-card li::before{content:counter(st);font-family:var(--f-num);font-weight:600;color:#8fb4ff;border:1px solid rgba(143,180,255,.45);border-radius:8px;width:26px;height:26px;display:grid;place-items:center;font-size:13px}
+.story-card li b{display:block;color:#fff;margin-bottom:2px}
+.story-card li.now::before{color:var(--brass);border-color:var(--brass)}
+.story-card .close{position:absolute;top:14px;right:14px;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;width:36px;height:36px;font-size:18px}
 .who .deposit{font-size:13px;color:var(--muted);margin-top:2px}
 .proof-btn{justify-self:start;display:inline-flex;align-items:center;gap:8px;margin-top:6px;background:var(--brass-soft);border:1px solid var(--brass);color:var(--fg);border-radius:999px;padding:5px 14px;font-size:13px;max-width:100%;text-align:left}
 .proof-btn img{width:22px;height:22px;border-radius:50%;object-fit:cover;object-position:50% 58%}
@@ -232,7 +245,7 @@ body:not(.admin) .admin-only{display:none!important}
       <img class="avatar" src="avatar.jpg" alt="BudiValen" width="84" height="84">
       <div class="who"><span class="name">BudiValen покоряет планету</span><h1 id="subtitle">Цель: от $100 до $1 000 000</h1>
         <span class="deposit">Депозит 100$ сделан 20 мая 2026 года</span>
-        <div class="proof-row"><button type="button" class="proof-btn" id="proofBtn"><b>Пруф</b><span>цель зафиксирована 8 июня 2026 ↗</span></button><button type="button" class="proof-btn wins" id="winsBtn"><b>Заносы</b><span>6 скринов ↗</span></button></div></div>
+        <div class="proof-row"><button type="button" class="proof-btn" id="proofBtn"><b>Пруф</b><span>цель зафиксирована 8 июня 2026 ↗</span></button><button type="button" class="proof-btn wins" id="winsBtn"><b>Заносы</b><span>6 скринов ↗</span></button><button type="button" class="proof-btn story" id="storyBtn"><b>Краткая покерная карьера</b><span>↗</span></button></div></div>
     </div>
     <span class="badge" id="modeBadge">Загрузка…</span>
   </header>
@@ -405,6 +418,26 @@ body:not(.admin) .admin-only{display:none!important}
     <button type="button" class="nav prev" id="proofPrev" aria-label="Предыдущий скрин">‹</button>
     <figure><img id="proofImg" src="proof3.jpg" alt=""><figcaption><b id="proofNum">1 / 3</b> <span id="proofCap"></span></figcaption></figure>
     <button type="button" class="nav next" id="proofNext" aria-label="Следующий скрин">›</button>
+  </div>
+  <div class="story-box" id="storyBox" hidden role="dialog" aria-label="Краткая покерная карьера">
+    <article class="story-card">
+      <button type="button" class="close" id="storyClose" aria-label="Закрыть">×</button>
+      <h2>Краткая покерная карьера</h2>
+      <h3>Четыре этапа</h3>
+      <ol>
+        <li><span>Кеш, начало МТТ.</span></li>
+        <li><span>Конфа, МТТ, командная жизнь в Сочи. Уход из покера.</span></li>
+        <li><span>Возвращение в покер. МТТ через фонд, 2 года игры. Тренерство. Буст скиллов. Переезд на Бали. Уход из покера.</span></li>
+        <li class="now"><span>Возвращение в покер после двух лет путешествий по миру. Цель — 1 млн долларов. Без фонда, с потерянными связями в покере.</span></li>
+      </ol>
+      <h3>Подробнее</h3>
+      <ol>
+        <li><span><b>Кеш, начало МТТ</b>Начинал лет 8 назад с кеша шмаксов. Это время помню по эпохе Gipsy Team и дневнику Forhayley. Вдохновлённый им, пошёл играть 6-максы на 24 стола, играл плохо, на рейкбек, НЛ25/50/100. Позже ушёл в МТТ: опыт кеша дал большое преимущество в покерной логике постфлоп, которой у МТТ-игроков в основном не было. Сразу начинал с АБИ 30–40 (в то время максимальный играемый АБИ в МТТ был около 120). Довольно быстро сделал БР под 40k. Ещё быстрее их потратил и потом слил в пару воскресений.</span></li>
+        <li><span><b>Конфа, МТТ, Сочи</b>Создание конфы. Жизнь только покером, цель была играть хайстекс. Играл по 800–1000 турниров в месяц, только PokerStars. За полгода сделал 80k профита. Смерть МТТ и ROI на PokerStars. Переход в спины, лимиты 30–100, на микро в плюс без рейкбека. Переезд в Сочи с покерными друзьями. К тому моменту — просаженный БР, игра не по БР, жизнь не по БР. Начало затяжной депрессии. Потеря самоидентификации. Утрата любви к покеру. Уход из покера на 2 года.</span></li>
+        <li><span><b>Фонд, тренерство, Бали</b>Из-за полного отсутствия денег вернулся в покер через фонд. Начал играть с АБИ 15 в самое фишное время с низким AFS. Два года в фонде. Подъём до турниров 55–550. Тренерство в фонде. Ап в покерном мышлении. Начало войны. Отъезд из России на Бали. Бросил покер во второй раз.</span></li>
+        <li class="now"><span><b>Марафон $100 → $1 000 000</b>Спустя почти 4 года жизни на Бали и путешествий по миру вернулся в покер со 100 долларов и поставил цель: со 100 до 1 млн долларов. Играю от себя, фондов не планирую, начал с АБИ 4. Прошло 4 месяца. Раскрутился до БР в 17k. Купил технику. Играю АБИ 30. Планирую в скором времени переехать в Аргентину, чтобы играть во всех румах и получить новое гражданство.</span></li>
+      </ol>
+    </article>
   </div>
   <footer class="foot">
     <span id="updated">BudiValen покоряет планету · $100 → $1 000 000</span>
@@ -642,6 +675,10 @@ body:not(.admin) .admin-only{display:none!important}
   $("proofPrev").onclick=()=>showProof(proofI-1);
   $("proofNext").onclick=()=>showProof(proofI+1);
   $("proofBtn").onclick=()=>{ GAL=PROOFS; $("proofBox").setAttribute("aria-label","Пруф старта марафона"); showProof(0); $("proofBox").hidden=false; $("proofClose").focus(); };
+  $("storyBtn").onclick=()=>{ $("storyBox").hidden=false; $("storyClose").focus(); };
+  $("storyClose").onclick=()=>{ $("storyBox").hidden=true; };
+  $("storyBox").addEventListener("click",e=>{ if(e.target.id==="storyBox") $("storyBox").hidden=true; });
+  document.addEventListener("keydown",e=>{ if(e.key==="Escape") $("storyBox").hidden=true; });
   $("proofClose").onclick=()=>{ $("proofBox").hidden=true; };
   $("proofBox").addEventListener("click",e=>{ if(e.target.id==="proofBox") $("proofBox").hidden=true; });
   document.addEventListener("keydown",e=>{ if($("proofBox").hidden) return; if(e.key==="Escape") $("proofBox").hidden=true; if(e.key==="ArrowRight") showProof(proofI+1); if(e.key==="ArrowLeft") showProof(proofI-1); });
