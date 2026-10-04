@@ -47,6 +47,11 @@ button{cursor:pointer}
 .who{display:grid;gap:2px;min-width:0}
 .who .name{font-family:var(--f-display);font-size:13px;font-weight:500;color:#fff;letter-spacing:.04em}
 .who h1{font-family:"Russo One",var(--f-display);font-weight:400;color:var(--brass);letter-spacing:.02em}
+.proof-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.proof-row .proof-btn{margin-top:0}
+.proof-btn.wins{border-color:#43c08a;background:rgba(67,192,138,.14)}
+.proof-btn.wins b{color:#43c08a}
+.proof-btn.wins:hover{background:rgba(67,192,138,.25)}
 .who .deposit{font-size:13px;color:var(--muted);margin-top:2px}
 .proof-btn{justify-self:start;display:inline-flex;align-items:center;gap:8px;margin-top:6px;background:var(--brass-soft);border:1px solid var(--brass);color:var(--fg);border-radius:999px;padding:5px 14px;font-size:13px;max-width:100%;text-align:left}
 .proof-btn img{width:22px;height:22px;border-radius:50%;object-fit:cover;object-position:50% 58%}
@@ -137,6 +142,8 @@ h2{font-size:14px;letter-spacing:.04em;text-transform:uppercase}
 @media (max-width:560px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.tile:last-child{grid-column:1/-1}}
 .tile{background:var(--surface);padding:14px 16px;display:grid;gap:6px}
 .tile .v{font-family:var(--f-num);font-size:21px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile:last-child{grid-column:1/-1}
+.tile .v.theory{color:#2fd3e0}
 .tile .s{font-size:12px;color:var(--muted)}
 
 /* hands / winrate split */
@@ -218,7 +225,7 @@ body:not(.admin) .admin-only{display:none!important}
       <img class="avatar" src="avatar.jpg" alt="BudiValen" width="84" height="84">
       <div class="who"><span class="name">BudiValen покоряет планету</span><h1 id="subtitle">Цель: от $100 до $1 000 000</h1>
         <span class="deposit">Депозит 100$ сделан 20 мая 2026 года</span>
-        <button type="button" class="proof-btn" id="proofBtn"><b>Пруф</b><span>цель зафиксирована 8 июня 2026 ↗</span></button></div>
+        <div class="proof-row"><button type="button" class="proof-btn" id="proofBtn"><b>Пруф</b><span>цель зафиксирована 8 июня 2026 ↗</span></button><button type="button" class="proof-btn wins" id="winsBtn"><b>Заносы</b><span>6 скринов ↗</span></button></div></div>
     </div>
     <span class="badge" id="modeBadge">Загрузка…</span>
   </header>
@@ -373,6 +380,7 @@ body:not(.admin) .admin-only{display:none!important}
               <div class="field"><label for="sHuP">Хедз-апов сыграно</label><input id="sHuP" inputmode="numeric"></div>
               <div class="field"><label for="sHuW">Хедз-апов выиграно</label><input id="sHuW" inputmode="numeric"></div>
             </div>
+            <div class="field"><label for="sTh">Работа над теорией, часов</label><input id="sTh" inputmode="decimal"></div>
             <div class="fgroup">
               <span class="label">Ключевые точки пути</span>
               <div class="fgroup" id="msFields"></div>
@@ -613,10 +621,20 @@ body:not(.admin) .admin-only{display:none!important}
     ["proof.jpg","Заметка в списке «Сегодня», скрин сделан 8 июня 2026 в 22:03. Личные заметки размыты."]
   ];
   let proofI=0;
-  function showProof(i){ proofI=(i+PROOFS.length)%PROOFS.length; $("proofImg").src=PROOFS[proofI][0]; $("proofImg").alt=PROOFS[proofI][1]; $("proofCap").textContent=PROOFS[proofI][1]; $("proofNum").textContent=(proofI+1)+" / "+PROOFS.length; }
+  const WINS=[
+    ["win1.jpg","14 707,59$ · WSOP Online: $54 Bounty Hunters Daily Deepstack · 3-е место из 7 378 · 11 сентября. Доезд на 14 700$."],
+    ["win2.jpg","¥24 098,70 · ¥220 Zodiac Late Night 6-Max + Dog · 1-е место из 776 · 2 октября. Китайская серия."],
+    ["win3.jpg","1 436,66$ · GGMasters Classic $25, $40K GTD · 6-е место из 1 795 · 29 мая."],
+    ["win4.jpg","775,05$ · Bounty Hunters Deepstack Turbo $2.50 · 1-е место из 3 505 · 27 мая."],
+    ["win5.jpg","357,54$ · Daily Classic $4 · 1-е место из 653 · 6 июня."],
+    ["win6.jpg","210,05$ · Bounty Hunters $3.20 · 1-е место из 414 · 16 июля."]
+  ];
+  let GAL=PROOFS;
+  function showProof(i){ proofI=(i+GAL.length)%GAL.length; $("proofImg").src=GAL[proofI][0]; $("proofImg").alt=GAL[proofI][1]; $("proofCap").textContent=GAL[proofI][1]; $("proofNum").textContent=(proofI+1)+" / "+GAL.length; }
+  $("winsBtn").onclick=()=>{ GAL=WINS; showProof(0); $("proofBox").setAttribute("aria-label","Скрины заносов"); $("proofBox").hidden=false; $("proofClose").focus(); };
   $("proofPrev").onclick=()=>showProof(proofI-1);
   $("proofNext").onclick=()=>showProof(proofI+1);
-  $("proofBtn").onclick=()=>{ showProof(0); $("proofBox").hidden=false; $("proofClose").focus(); };
+  $("proofBtn").onclick=()=>{ GAL=PROOFS; $("proofBox").setAttribute("aria-label","Пруф старта марафона"); showProof(0); $("proofBox").hidden=false; $("proofClose").focus(); };
   $("proofClose").onclick=()=>{ $("proofBox").hidden=true; };
   $("proofBox").addEventListener("click",e=>{ if(e.target.id==="proofBox") $("proofBox").hidden=true; });
   document.addEventListener("keydown",e=>{ if($("proofBox").hidden) return; if(e.key==="Escape") $("proofBox").hidden=true; if(e.key==="ArrowRight") showProof(proofI+1); if(e.key==="ArrowLeft") showProof(proofI-1); });
@@ -641,7 +659,8 @@ body:not(.admin) .admin-only{display:none!important}
       ["МТТ / сессия", n?nf.format(Math.round(c.totM/n)):"—", "", "в среднем"],
       ["$ / МТТ", c.totM?(c.perMtt>=0?"+":"−")+Math.abs(c.perMtt).toFixed(2).replace(".",",")+"$":"—", cls(c.perMtt), "профит на турнир"],
       ["ROI", c.roi!=null?(c.roi>=0?"+":"−")+Math.abs(c.roi).toFixed(1).replace(".",",")+"%":"—", c.roi!=null?cls(c.roi):"", c.roi!=null?"профит / бай-ины "+money(c.buySum):"нужна сумма бай-инов"],
-      ["АБИ", c.abi!=null?abiFmt(c.abi):"—", "", c.abi!=null&&n&&c.rows[n-1].abi!=null?"последняя "+abiFmt(c.rows[n-1].abi):"средний бай-ин"]
+      ["АБИ", c.abi!=null?abiFmt(c.abi):"—", "", c.abi!=null&&n&&c.rows[n-1].abi!=null?"последняя "+abiFmt(c.rows[n-1].abi):"средний бай-ин"],
+      ["Работа над теорией", nf.format(+(settings.theoryHours||0))+" ч", "theory", "визард, ХРК, флопзилла, обсуждение раздач"]
     ];
     const lastH=[...c.rows].reverse().find(r=>+r.hands), lastW=[...c.rows].reverse().find(r=>r.wr!=null&&r.wr!=="");
     $("hHands").textContent = c.hands ? nf.format(c.hands) : "—";
@@ -759,6 +778,7 @@ body:not(.admin) .admin-only{display:none!important}
     $("roomFields").innerHTML=settings.rooms.map((n,i)=>`<div class="field"><label for="fR${i}">${esc(n||("Рум "+(i+1)))}</label><input id="fR${i}" inputmode="decimal" placeholder="0"></div>`).join("");
     $("roomNameFields").innerHTML=settings.rooms.map((n,i)=>`<div class="field"><label for="sR${i}">Рум ${i+1}</label><input id="sR${i}" value="${esc(n)}"></div>`).join("");
     $("sStart").value=settings.startBR; $("sGoal").value=settings.goal; $("sDate").value=settings.startDate||"";
+    $("sTh").value=settings.theoryHours??0;
     $("sHuP").value=settings.hu?.played??0; $("sHuW").value=settings.hu?.won??0;
     msDraft=(settings.milestones||[]).map(m=>({...m})); drawMs();
   }
@@ -818,7 +838,7 @@ body:not(.admin) .admin-only{display:none!important}
   });
   $("setForm").addEventListener("submit",async e=>{
     e.preventDefault(); if(!store) return;
-    const st={ rooms:[...Array(ROOMS)].map((_,i)=>$("sR"+i).value.trim()||("Рум "+(i+1))), startBR:parse($("sStart").value)||100, goal:parse($("sGoal").value)||1e6, startDate:$("sDate").value||"", hu:{played:Math.round(parse($("sHuP").value)),won:Math.round(parse($("sHuW").value))}, milestones:(syncMs(),msDraft.filter(m=>m.br>0&&m.label)) };
+    const st={ rooms:[...Array(ROOMS)].map((_,i)=>$("sR"+i).value.trim()||("Рум "+(i+1))), startBR:parse($("sStart").value)||100, goal:parse($("sGoal").value)||1e6, startDate:$("sDate").value||"", theoryHours:parse($("sTh").value), hu:{played:Math.round(parse($("sHuP").value)),won:Math.round(parse($("sHuW").value))}, milestones:(syncMs(),msDraft.filter(m=>m.br>0&&m.label)) };
     try{ await store.saveSettings(st); flash("setMsg","Настройки сохранены."); }catch(err){ flash("setMsg","Не сохранилось: "+(err.message||err.code),true); }
   });
 
