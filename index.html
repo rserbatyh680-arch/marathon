@@ -42,10 +42,10 @@ button{cursor:pointer}
 /* header */
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
 .brand{display:flex;align-items:center;gap:12px}
-.avatar{width:84px;height:84px;border-radius:50%;flex:none;object-fit:cover;border:2px solid var(--brass);box-shadow:0 0 0 4px var(--brass-soft)}
+.avatar{width:84px;height:84px;border-radius:50%;flex:none;object-fit:cover;border:3px solid var(--up);box-shadow:0 0 0 4px rgba(67,192,138,.15)}
 .who{display:grid;gap:2px;min-width:0}
-.who .name{font-family:var(--f-display);font-size:13px;font-weight:500;color:var(--brass);letter-spacing:.04em}
-.who h1{font-family:"Russo One",var(--f-display);font-weight:400;color:var(--red);letter-spacing:.02em}
+.who .name{font-family:var(--f-display);font-size:13px;font-weight:500;color:#fff;letter-spacing:.04em}
+.who h1{font-family:"Russo One",var(--f-display);font-weight:400;color:var(--brass);letter-spacing:.02em}
 .chip{width:38px;height:38px;border-radius:50%;flex:none;background:
   repeating-conic-gradient(var(--brass) 0 22.5deg,var(--surface-2) 22.5deg 45deg);display:grid;place-items:center}
 .chip::after{content:"";width:24px;height:24px;border-radius:50%;background:var(--bg);border:2px solid var(--brass)}
@@ -57,17 +57,19 @@ h1{font-size:clamp(20px,3.4vw,28px);letter-spacing:.01em;line-height:1.2}
 .rail{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;margin-bottom:18px}
 .rail-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
 .rail-head .pct{font-family:var(--f-num);color:var(--brass);font-weight:600;font-size:18px}
-.track{position:relative;height:10px;border-radius:999px;background:var(--surface-2);margin:26px 0 10px}
-.fill{position:absolute;inset:0 auto 0 0;border-radius:999px;background:linear-gradient(90deg,#8a6a2c,var(--brass));transition:width .6s}
+.track{position:relative;height:12px;border-radius:999px;background:var(--surface-2);margin:30px 0 14px}
+.fill{position:absolute;inset:0 auto 0 0;border-radius:999px;background:linear-gradient(90deg,#2fbf71 0%,#9bd04a 30%,#f2c230 55%,#f08a2c 75%,#e5383b 100%);background-repeat:no-repeat;transition:width .6s}
 .mark{position:absolute;top:-6px;width:2px;height:22px;background:var(--line)}
 .marks{position:relative;height:18px;font-family:var(--f-num);font-size:11px;color:var(--muted)}
 .marks span{position:absolute;transform:translateX(-50%);white-space:nowrap}
 .marks span:first-child{transform:none}.marks span:last-child{transform:translateX(-100%)}
-.ms-dot{position:absolute;top:50%;width:16px;height:16px;margin:-8px 0 0 -8px;transform:rotate(45deg);background:var(--surface);border:2px solid var(--muted);z-index:1;padding:0;cursor:pointer}
+.ms-dot{position:absolute;top:50%;width:22px;height:22px;margin:-11px 0 0 -11px;transform:rotate(45deg);background:var(--surface);border:2px solid var(--muted);z-index:1;padding:0;cursor:pointer}
 .ms-dot:hover,.ms-dot:focus-visible{transform:rotate(45deg) scale(1.25)}
 .ms-tip{position:absolute;bottom:calc(100% + 14px);transform:translateX(-50%);width:max-content;max-width:min(260px,80vw);background:var(--surface-2);border:1px solid var(--brass);border-radius:8px;padding:8px 12px;font-size:13px;line-height:1.35;z-index:5;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.4)}
 .ms-tip b{font-family:var(--f-num);color:var(--brass)}
 .ms-tip .t{display:block;font-size:11px;color:var(--muted);margin-top:3px}
+.ms-dot.minor{width:13px;height:13px;margin:-6.5px 0 0 -6.5px;z-index:0}
+.ms-dot:not(.minor){z-index:2}
 .ms-dot.done{background:var(--brass);border-color:var(--brass)}
 .ms-dot.next{border-color:var(--brass);box-shadow:0 0 0 4px var(--brass-soft)}
 .ms-list{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
@@ -77,6 +79,7 @@ h1{font-size:clamp(20px,3.4vw,28px);letter-spacing:.01em;line-height:1.2}
 .ms.done{border-color:rgba(214,165,74,.45);background:var(--brass-soft)}
 .ms.done .t{color:var(--brass)}
 .ms.next{border-color:var(--brass)}
+.mini{grid-column:1/-1;font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:center;margin-top:-2px}
 .ms-edit{display:grid;grid-template-columns:96px minmax(0,1fr) auto;gap:6px;align-items:center}
 .rail-foot{display:flex;gap:6px 24px;flex-wrap:wrap;margin-top:12px;font-size:13px;color:var(--muted)}
 .rail-foot b{color:var(--fg);font-family:var(--f-num);font-weight:600}
@@ -182,7 +185,7 @@ body:not(.admin) .admin-only{display:none!important}
 
   <section class="rail" aria-label="Прогресс">
     <div class="rail-head">
-      <span class="label">Путь к $1M · шкала по нулям</span>
+      <span class="label">Путь к 1М</span>
       <span class="pct" id="pct">0%</span>
     </div>
     <div class="track" id="track"><div class="fill" id="fill" style="width:0"></div></div>
@@ -207,16 +210,12 @@ body:not(.admin) .admin-only{display:none!important}
 
       <section class="card">
         <div class="card-head">
-          <h2>График банкролла</h2>
+          <h2>График профита</h2>
           <div class="controls">
             <div class="seg" id="rangeSeg">
               <button data-v="7" aria-pressed="false">Неделя</button>
               <button data-v="30" aria-pressed="false">Месяц</button>
               <button data-v="all" aria-pressed="true">Всё время</button>
-            </div>
-            <div class="seg" id="scaleSeg">
-              <button data-v="lin" aria-pressed="true">Лин</button>
-              <button data-v="log" aria-pressed="false">Лог</button>
             </div>
           </div>
         </div>
@@ -348,7 +347,7 @@ body:not(.admin) .admin-only{display:none!important}
 (() => {
   const ROOMS = 6;
   const DEFAULT_SETTINGS = { rooms:["GGPoker","PokerStars","ACR","CoinPoker","iPoker","Room 6"], startBR:100, goal:1000000, startDate:"",
-    milestones:[{br:2000,label:"Доезд на 2 000$ — переход на АБИ $8"},{br:14700,label:"Доезд на 14 700$ — переход на АБИ $30"},{br:75000,label:"Следующая вершина при БР 50–100k — пока не покорена"}] };
+    milestones:[{br:2000,label:"Доезд на 2 000$ — переход на АБИ $8"},{br:14700,label:"Доезд на 14 700$ — переход на АБИ $30"},{br:18300,label:"Выигрыш турнира на 3 600$ — Китайская серия",minor:true},{br:75000,label:"Следующая вершина при БР 50–100k — пока не покорена"}] };
   let settings = structuredClone(DEFAULT_SETTINGS);
   let sessions = [];
   let store = null;
@@ -376,19 +375,20 @@ body:not(.admin) .admin-only{display:none!important}
     const list = sessions.slice().sort((a,b)=> a.date===b.date ? (a.ts||0)-(b.ts||0) : a.date<b.date?-1:1);
     const start = settings.startBR || 100;
     const startDate = settings.startDate || (list[0]?.date) || today();
-    let prev = start, totW=0, totR=0, totM=0, plus=0, peak=start, buySum=0, buyM=0, hands=0, wrH=0, wrSum=0;
+    let prev = start, cum = 0, cumPeak = 0, totW=0, totR=0, totM=0, plus=0, peak=start, buySum=0, buyM=0, hands=0, wrH=0, wrSum=0;
     const rows = list.map(s=>{
       const rooms=(s.rooms||[]).map(Number);
       const br = rooms.reduce((a,b)=>a+(+b||0),0) + (+s.off||0) + (+s.usdt||0);
-      const res = br - prev + (+s.withdraw||0);
+      const res = br - prev + (+s.withdraw||0) - (+s.rakeback||0);
+      cum += res; cumPeak = Math.max(cumPeak, cum);
       if(+s.buyins && +s.mtt){ buySum+=+s.buyins; buyM+=+s.mtt; }
       hands += +s.hands||0; if(s.wr!=null && s.wr!=="" && +s.hands){ wrH+=+s.hands; wrSum+=(+s.wr)*(+s.hands); }
       prev = br; totW += +s.withdraw||0; totR += +s.rakeback||0; totM += +s.mtt||0; if(res>0) plus++; peak=Math.max(peak,br);
-      return {...s, br, res, day: dayDiff(startDate, s.date)+1, abi: (+s.buyins && +s.mtt) ? s.buyins/s.mtt : null};
+      return {...s, br, res, cum, day: dayDiff(startDate, s.date)+1, abi: (+s.buyins && +s.mtt) ? s.buyins/s.mtt : null};
     });
     const last = rows[rows.length-1];
     const br = last ? last.br : start;
-    const profit = br + totW - start;
+    const profit = cum;
     return { rows, start, br, profit, totW, totR, totM, plus, peak, startDate,
       abi: buyM ? buySum/buyM : null, hands, wr: wrH ? wrSum/wrH : null,
       perMtt: totM ? profit/totM : 0,
@@ -489,6 +489,7 @@ body:not(.admin) .admin-only{display:none!important}
     const lo=Math.log10(c.start||100), hi=Math.log10(settings.goal||1e6);
     const p = Math.max(0,Math.min(1,(Math.log10(Math.max(c.br,1))-lo)/(hi-lo)));
     $("fill").style.width=(p*100).toFixed(2)+"%";
+    $("fill").style.backgroundSize = (p>0? (100/p).toFixed(2) : 100)+"% 100%";
     $("pct").textContent=(p*100).toFixed(1).replace(".",",")+"%";
     const marks=[]; for(let e=Math.ceil(lo);e<=Math.floor(hi);e++) marks.push(e);
     if(!marks.includes(lo)) marks.unshift(lo);
@@ -500,11 +501,13 @@ body:not(.admin) .admin-only{display:none!important}
       const s=document.createElement("span"); s.style.left=x+"%"; s.textContent=short(Math.pow(10,e)); $("marks").appendChild(s);
     });
     const ms=(settings.milestones||[]).filter(m=>+m.br>0).sort((a,b)=>a.br-b.br);
-    const nextI=ms.findIndex(m=>c.br<m.br);
+    const nextI=ms.findIndex(m=>!m.minor && c.br<m.br);
     ms.forEach((m,i)=>{
       const x=Math.max(0,Math.min(100,(Math.log10(m.br)-lo)/(hi-lo)*100));
       const st=c.br>=m.br?"done":i===nextI?"next":"";
-      const d=document.createElement("button"); d.type="button"; d.className="ms-dot mark-ms "+st; d.style.left=x+"%";
+      const d=document.createElement("button"); d.type="button"; d.className="ms-dot mark-ms "+st+(m.minor?" minor":"");
+      const prev=ms.slice(0,i).reverse().find(q=>!q.minor);
+      d.style.left = (m.minor && prev) ? `max(${x}%, calc(${((Math.log10(prev.br)-lo)/(hi-lo)*100).toFixed(2)}% + 24px))` : x+"%";
       d.setAttribute("aria-label",money(m.br)+": "+m.label);
       d.dataset.tip=`<b>${money(m.br)}</b> · ${esc(m.label)}<span class="t">${st==="done"?"пройдено ✓":"осталось "+money(m.br-c.br)}</span>`;
       $("track").appendChild(d);
@@ -531,7 +534,7 @@ body:not(.admin) .admin-only{display:none!important}
     const n=c.rows.length;
     const t=[
       ["Банкролл", money(c.br), "", "пик "+money(c.peak)],
-      ["Профит", signed(c.profit), cls(c.profit), "с учётом выводов"],
+      ["Профит", signed(c.profit), cls(c.profit), "игровой, без выводов и рейкбека"],
       ["День", n?"#"+c.day:"—", "", n?"старт "+dShort(c.startDate):"нет сессий"],
       ["Сессий", nf.format(n), "", n?"последняя "+dShort(c.rows[n-1].date):""],
       ["Турниров", nf.format(c.totM), "", "за весь марафон"],
@@ -552,7 +555,7 @@ body:not(.admin) .admin-only{display:none!important}
   function niceStep(raw){ const p=Math.pow(10,Math.floor(Math.log10(raw))); const f=raw/p; return (f<=1?1:f<=2?2:f<=5?5:10)*p; }
   function renderBr(c){
     const box=$("brChart");
-    let pts=[{date:c.startDate,br:c.start,res:0,start:true}, ...c.rows];
+    let pts=[{date:c.startDate,v:0,res:0,start:true}, ...c.rows.map(r=>({...r,v:r.cum}))];
     if(range!=="all" && c.rows.length){
       const lastD=c.rows[c.rows.length-1].date, days=+range;
       const idx=pts.findIndex(p=>dayDiff(p.date,lastD)<days);
@@ -560,44 +563,30 @@ body:not(.admin) .admin-only{display:none!important}
     }
     if(pts.length<2){ box.innerHTML=`<div class="empty">Сессий пока нет — график появится после первой.</div>`; return; }
     const W=Math.max(300,box.clientWidth), H=Math.round(Math.min(340,Math.max(220,W*0.42)));
-    const L=58,R=14,T=26,B=28;
-    const vals=pts.map(p=>p.br);
-    const useLog = scale==="log";
-    const f = v => useLog ? Math.log10(Math.max(v,1)) : v;
-    let mn=Math.min(...vals), mx=Math.max(...vals);
-    let ticks=[];
-    if(useLog){
-      let lo=Math.floor(Math.log10(Math.max(mn,1))), hi=Math.ceil(Math.log10(Math.max(mx,10)));
-      if(hi===lo) hi++;
-      for(let e=lo;e<=hi;e++){ ticks.push(Math.pow(10,e)); if(hi-lo<=2 && e<hi){ ticks.push(2*Math.pow(10,e)); ticks.push(5*Math.pow(10,e)); } }
-      ticks.sort((a,b)=>a-b); mn=Math.pow(10,lo); mx=Math.pow(10,hi);
-    } else {
-      if(mx===mn){ mx+=1; mn=Math.max(0,mn-1); }
-      const st=niceStep((mx-mn)/4); mn=Math.floor(mn/st)*st; mx=Math.ceil(mx/st)*st;
-      for(let v=mn;v<=mx+st/2;v+=st) ticks.push(v);
-    }
-    const y0=f(mn), y1=f(mx);
+    const L=62,R=14,T=26,B=28;
+    const vals=pts.map(p=>p.v);
+    let mn=Math.min(0,...vals), mx=Math.max(0,...vals);
+    if(mx===mn){ mx+=1; }
+    const st=niceStep((mx-mn)/4); mn=Math.floor(mn/st)*st; mx=Math.ceil(mx/st)*st;
+    const ticks=[]; for(let v=mn;v<=mx+st/2;v+=st) ticks.push(Math.round(v*100)/100);
     const X=i=> L + (W-L-R)*(i/(pts.length-1));
-    const Y=v=> T + (H-T-B)*(1-(f(v)-y0)/(y1-y0||1));
-    let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="График банкролла">`;
-    s+=`<defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d6a54a" stop-opacity=".22"/><stop offset="1" stop-color="#d6a54a" stop-opacity="0"/></linearGradient></defs>`;
-    ticks.forEach(v=>{ const y=Y(v); s+=`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="#262b35" stroke-width="1"/><text x="${L-8}" y="${y+4}" text-anchor="end">${short(v)}</text>`; });
-    // goal line if within view
-    const goal=settings.goal||1e6; if(goal<=mx && goal>=mn){ const y=Y(goal); s+=`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="#d6a54a" stroke-dasharray="4 4"/>`; }
-    // area
-    let area=`M${X(0)},${H-B}`; pts.forEach((p,i)=> area+=` L${X(i)},${Y(p.br)}`); area+=` L${X(pts.length-1)},${H-B} Z`;
+    const Y=v=> T + (H-T-B)*(1-(v-mn)/(mx-mn||1));
+    const fmtT=v=> v===0?"0":(v>0?"+":"−")+short(Math.abs(v));
+    let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="График профита">`;
+    s+=`<defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#43c08a" stop-opacity=".22"/><stop offset="1" stop-color="#43c08a" stop-opacity="0"/></linearGradient></defs>`;
+    ticks.forEach(v=>{ const y=Y(v); s+=`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="${v===0?"#4a5160":"#262b35"}" stroke-width="1"/><text x="${L-8}" y="${y+4}" text-anchor="end">${fmtT(v)}</text>`; });
+    const y0=Y(0);
+    let area=`M${X(0)},${y0}`; pts.forEach((p,i)=> area+=` L${X(i)},${Y(p.v)}`); area+=` L${X(pts.length-1)},${y0} Z`;
     s+=`<path d="${area}" fill="url(#ga)"/>`;
-    // segments
-    for(let i=1;i<pts.length;i++){ const up=pts[i].br>=pts[i-1].br; s+=`<line x1="${X(i-1)}" y1="${Y(pts[i-1].br)}" x2="${X(i)}" y2="${Y(pts[i].br)}" stroke="${up?"#43c08a":"#e8575c"}" stroke-width="2" stroke-linecap="round"/>`; }
-    // x labels
+    for(let i=1;i<pts.length;i++){ const up=pts[i].v>=pts[i-1].v; s+=`<line x1="${X(i-1)}" y1="${Y(pts[i-1].v)}" x2="${X(i)}" y2="${Y(pts[i].v)}" stroke="${up?"#43c08a":"#e8575c"}" stroke-width="2" stroke-linecap="round"/>`; }
     const nl=Math.min(5,pts.length); for(let k=0;k<nl;k++){ const i=Math.round(k*(pts.length-1)/(nl-1||1)); const anchor=k===0?"start":k===nl-1?"end":"middle"; s+=`<text x="${X(i)}" y="${H-8}" text-anchor="${anchor}">${dShort(pts[i].date)}</text>`; }
-    // peak
-    let pi=0; pts.forEach((p,i)=>{ if(p.br>=pts[pi].br) pi=i; });
-    const px=X(pi), py=Y(pts[pi].br);
-    const lab="пик "+short(pts[pi].br); const lw=lab.length*7+14; const lx=Math.min(Math.max(px-lw/2,L),W-R-lw);
-    s+=`<rect x="${lx}" y="${Math.max(2,py-26)}" width="${lw}" height="18" rx="5" fill="#1b1f27" stroke="#d6a54a"/><text x="${lx+lw/2}" y="${Math.max(2,py-26)+13}" text-anchor="middle" style="fill:#d6a54a">${lab}</text>`;
-    // last point
-    const li=pts.length-1; s+=`<circle cx="${X(li)}" cy="${Y(pts[li].br)}" r="4.5" fill="#d6a54a" stroke="#0c0e12" stroke-width="2"/>`;
+    let pi=0; pts.forEach((p,i)=>{ if(p.v>=pts[pi].v) pi=i; });
+    if(pts[pi].v>0){
+      const px=X(pi), py=Y(pts[pi].v);
+      const lab="пик +"+short(pts[pi].v); const lw=lab.length*7+14; const lx=Math.min(Math.max(px-lw/2,L),W-R-lw);
+      s+=`<rect x="${lx}" y="${Math.max(2,py-26)}" width="${lw}" height="18" rx="5" fill="#1b1f27" stroke="#d6a54a"/><text x="${lx+lw/2}" y="${Math.max(2,py-26)+13}" text-anchor="middle" style="fill:#d6a54a">${lab}</text>`;
+    }
+    const li=pts.length-1; s+=`<circle cx="${X(li)}" cy="${Y(pts[li].v)}" r="4.5" fill="#d6a54a" stroke="#0c0e12" stroke-width="2"/>`;
     s+=`<line id="hx" x1="0" x2="0" y1="${T}" y2="${H-B}" stroke="#8b8f99" stroke-dasharray="2 3" visibility="hidden"/><circle id="hc" r="4" fill="#e9e6df" visibility="hidden"/>`;
     s+=`<rect x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}" fill="transparent" id="hit"/></svg><div class="tip" id="tip" hidden></div>`;
     box.innerHTML=s;
@@ -605,16 +594,15 @@ body:not(.admin) .admin-only{display:none!important}
     const move=e=>{
       const r=svg.getBoundingClientRect(); const sx=(e.clientX-r.left)*W/r.width;
       const i=Math.max(0,Math.min(pts.length-1,Math.round((sx-L)/(W-L-R)*(pts.length-1))));
-      const p=pts[i], x=X(i), y=Y(p.br);
+      const p=pts[i], x=X(i), y=Y(p.v);
       hx.setAttribute("x1",x);hx.setAttribute("x2",x);hx.setAttribute("visibility","visible");
       hc.setAttribute("cx",x);hc.setAttribute("cy",y);hc.setAttribute("visibility","visible");
       tip.hidden=false; tip.style.left=(x*r.width/W)+"px"; tip.style.top=(y*r.height/H)+"px";
-      tip.innerHTML = p.start ? `Старт · <b>${money(p.br)}</b>` : `${dShort(p.date)} · <b>${money(p.br)}</b> · <b class="${cls(p.res)}">${signed(p.res)}</b>`;
+      tip.innerHTML = p.start ? `Старт · <b>0$</b>` : `${dShort(p.date)} · профит <b class="${cls(p.v)}">${signed(p.v)}</b> · сессия <b class="${cls(p.res)}">${signed(p.res)}</b>`;
     };
     svg.addEventListener("pointermove",move); svg.addEventListener("pointerdown",move);
     svg.addEventListener("pointerleave",()=>{ tip.hidden=true; hx.setAttribute("visibility","hidden"); hc.setAttribute("visibility","hidden"); });
   }
-
   function renderMtt(c){
     const box=$("mttChart"); const rows=c.rows.slice(-40);
     if(!rows.length){ box.innerHTML=`<div class="empty">Количество турниров по сессиям появится после первой записи.</div>`; $("mttAvg").textContent=""; return; }
@@ -674,9 +662,9 @@ body:not(.admin) .admin-only{display:none!important}
   }
   let msDraft=[];
   function drawMs(){
-    $("msFields").innerHTML=msDraft.map((m,i)=>`<div class="ms-edit"><div class="field"><label for="msB${i}">БР, $</label><input id="msB${i}" inputmode="decimal" value="${m.br||""}"></div><div class="field"><label for="msL${i}">Что происходит</label><input id="msL${i}" value="${esc(m.label||"")}" placeholder="Доезд на 2 000$ — переход на АБИ $8"></div><button type="button" class="rowbtn" data-msdel="${i}" aria-label="Убрать точку" style="margin-top:18px">×</button></div>`).join("");
+    $("msFields").innerHTML=msDraft.map((m,i)=>`<div class="ms-edit"><div class="field"><label for="msB${i}">БР, $</label><input id="msB${i}" inputmode="decimal" value="${m.br||""}"></div><div class="field"><label for="msL${i}">Что происходит</label><input id="msL${i}" value="${esc(m.label||"")}" placeholder="Доезд на 2 000$ — переход на АБИ $8"></div><button type="button" class="rowbtn" data-msdel="${i}" aria-label="Убрать точку" style="margin-top:18px">×</button><label class="mini"><input type="checkbox" id="msM${i}" ${m.minor?"checked":""}> малая точка (событие)</label></div>`).join("");
   }
-  function syncMs(){ msDraft=msDraft.map((m,i)=>({br:parse($("msB"+i)?.value),label:($("msL"+i)?.value||"").trim()})); }
+  function syncMs(){ msDraft=msDraft.map((m,i)=>({br:parse($("msB"+i)?.value),label:($("msL"+i)?.value||"").trim(),minor:!!$("msM"+i)?.checked})); }
   $("msAdd").onclick=()=>{ syncMs(); msDraft.push({br:"",label:""}); drawMs(); };
   $("msFields").addEventListener("click",e=>{ const b=e.target.closest("[data-msdel]"); if(!b) return; syncMs(); msDraft.splice(+b.dataset.msdel,1); drawMs(); });
   function readForm(){
@@ -698,7 +686,7 @@ body:not(.admin) .admin-only{display:none!important}
     return rows.length?rows[rows.length-1].br:c.start;
   }
   function updatePreview(){
-    const f=readForm(); const br=f.rooms.reduce((a,b)=>a+b,0)+f.off+f.usdt; const res=br-prevBrFor()+f.withdraw;
+    const f=readForm(); const br=f.rooms.reduce((a,b)=>a+b,0)+f.off+f.usdt; const res=br-prevBrFor()+f.withdraw-f.rakeback;
     $("pvBr").textContent=money(br); $("pvRes").textContent=signed(res); $("pvRes").className="v "+cls(res);
     $("pvAbi").textContent = f.buyins&&f.mtt ? abiFmt(f.buyins/f.mtt) : "—";
   }
@@ -734,7 +722,7 @@ body:not(.admin) .admin-only{display:none!important}
 
   /* ---------- segmented controls ---------- */
   function seg(id,set){ $(id).addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return; $(id).querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b)); set(b.dataset.v); render(); }); }
-  seg("rangeSeg",v=>range=v); seg("scaleSeg",v=>scale=v);
+  seg("rangeSeg",v=>range=v);
 
   /* ---------- main render ---------- */
   function render(){
