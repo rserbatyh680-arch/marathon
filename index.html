@@ -61,8 +61,8 @@ h1{font-size:clamp(20px,3.4vw,28px);letter-spacing:.01em;line-height:1.2}
 .rail-head .pct{font-family:var(--f-num);color:var(--brass);font-weight:600;font-size:18px}
 .track{position:relative;height:12px;border-radius:999px;background:linear-gradient(90deg,rgba(0,240,112,.25),rgba(255,224,0,.2) 48%,rgba(255,16,48,.28)),var(--surface-2);margin:18px 0 12px}
 .fill{position:absolute;inset:0 auto 0 0;border-radius:999px;background:linear-gradient(90deg,#00f070 0%,#7dff3a 22%,#ffe000 48%,#ff7a00 72%,#ff1030 100%);box-shadow:0 0 12px rgba(0,240,112,.35);background-repeat:no-repeat;transition:width .6s}
-.track.thin{height:8px;margin:8px 0 8px}
-.track.thin .fill{min-width:4px}
+.track.thin{height:8px;margin:8px 0 8px;background:var(--surface-2)}
+.track.thin .fill{min-width:4px;background:#00f070;box-shadow:0 0 10px rgba(0,240,112,.45)}
 .sub-label{display:flex;justify-content:space-between;gap:12px;font-size:12px;color:var(--muted);margin-top:14px}
 .sub-label b{color:var(--fg);font-family:var(--f-num);font-weight:600}
 .mark{position:absolute;top:-6px;width:2px;height:22px;background:var(--line)}
@@ -502,7 +502,6 @@ body:not(.admin) .admin-only{display:none!important}
     $("goalLbl").textContent=short(goal);
     // whole path: true linear scale, gradient spans the whole goal
     $("fillAll").style.width=(p*100).toFixed(3)+"%";
-    $("fillAll").style.backgroundSize=(p>0?(100/p).toFixed(2):100)+"% 100%";
     $("trackAll").querySelectorAll(".mark").forEach(m=>m.remove());
     $("marksAll").innerHTML="";
     [0,.25,.5,.75,1].forEach(f=>{ const x=f*100;
