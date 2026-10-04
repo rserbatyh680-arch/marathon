@@ -58,6 +58,11 @@ button{cursor:pointer}
 .story-box{position:fixed;inset:0;z-index:50;background:rgba(5,6,8,.88);display:grid;place-items:center;padding:calc(env(safe-area-inset-top,0px) + 16px) 16px calc(env(safe-area-inset-bottom,0px) + 16px)}
 .story-card{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:14px;max-width:680px;width:100%;max-height:100%;overflow:auto;padding:28px 26px 30px}
 .story-card h2{font-family:"Russo One",var(--f-display);font-weight:400;font-size:22px;text-transform:none;letter-spacing:.01em;color:#fff;margin:0 40px 18px 0}
+.story-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.story-stats>div{display:grid;gap:4px;border:1px solid rgba(143,180,255,.35);background:rgba(143,180,255,.07);border-radius:10px;padding:12px 14px}
+.story-stats .v{font-family:var(--f-num);font-size:22px;font-weight:600;color:#fff}
+.story-stats .s{font-size:13px;color:var(--muted);line-height:1.35}
+@media (max-width:480px){.story-stats .v{font-size:19px}}
 .story-card h3{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:22px 0 10px}
 .story-card ol{margin:0;padding:0;list-style:none;display:grid;gap:10px;counter-reset:st}
 .story-card li{counter-increment:st;display:grid;grid-template-columns:30px 1fr;gap:10px;line-height:1.55;font-size:15px}
@@ -423,6 +428,10 @@ body:not(.admin) .admin-only{display:none!important}
     <article class="story-card">
       <button type="button" class="close" id="storyClose" aria-label="Закрыть">×</button>
       <h2>Краткая покерная карьера</h2>
+      <div class="story-stats">
+        <div><span class="v">4 года</span><span class="s">активной игры в покер в промежутке 8 лет</span></div>
+        <div><span class="v">~150–180k$</span><span class="s">общий профит</span></div>
+      </div>
       <h3>Четыре этапа</h3>
       <ol>
         <li><span>Кеш, начало МТТ.</span></li>
