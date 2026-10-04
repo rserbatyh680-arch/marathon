@@ -86,10 +86,13 @@ h1{font-size:clamp(20px,3.4vw,28px);letter-spacing:.01em;line-height:1.2}
 .ms-dot{position:absolute;top:50%;width:22px;height:22px;margin:-11px 0 0 -11px;transform:rotate(45deg);background:var(--surface);border:2px solid var(--muted);z-index:1;padding:0;cursor:pointer}
 .ms-dot:hover,.ms-dot:focus-visible{transform:rotate(45deg) scale(1.25)}
 .ms-tip{position:absolute;bottom:calc(100% + 14px);transform:translateX(-50%);width:max-content;max-width:min(260px,80vw);background:var(--surface-2);border:1px solid var(--brass);border-radius:8px;padding:8px 12px;font-size:13px;line-height:1.35;z-index:5;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.ms-tip .mid-t{color:#7fe7f0}
 .ms-tip b{font-family:var(--f-num);color:var(--brass)}
 .ms-tip .t{display:block;font-size:11px;color:var(--muted);margin-top:3px}
 .ms-dot.minor{width:13px;height:13px;margin:-6.5px 0 0 -6.5px;z-index:0}
-.ms-dot:not(.minor){z-index:2}
+.ms-dot.mid{width:17px;height:17px;margin:-8.5px 0 0 -8.5px;z-index:1;border-color:#2fd3e0}
+.ms-dot.mid.done{background:#2fd3e0;border-color:#2fd3e0;box-shadow:0 0 8px rgba(47,211,224,.55)}
+.ms-dot:not(.minor):not(.mid){z-index:2}
 .ms-dot.done{background:var(--brass);border-color:var(--brass)}
 .ms-dot.next{border-color:var(--brass);box-shadow:0 0 0 4px var(--brass-soft)}
 .ms-list{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
@@ -99,7 +102,8 @@ h1{font-size:clamp(20px,3.4vw,28px);letter-spacing:.01em;line-height:1.2}
 .ms.done{border-color:rgba(214,165,74,.45);background:var(--brass-soft)}
 .ms.done .t{color:var(--brass)}
 .ms.next{border-color:var(--brass)}
-.mini{grid-column:1/-1;font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:center;margin-top:-2px}
+.mini{grid-column:1/-1;font-size:12px;color:var(--muted);display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:-2px}
+.mini select{background:var(--bg);border:1px solid var(--line);border-radius:6px;color:var(--fg);padding:3px 6px;font:inherit}
 .ms-edit{display:grid;grid-template-columns:96px minmax(0,1fr) auto;gap:6px;align-items:center}
 .rail-foot{display:flex;gap:6px 24px;flex-wrap:wrap;margin-top:12px;font-size:13px;color:var(--muted)}
 .rail-foot b{color:var(--fg);font-family:var(--f-num);font-weight:600}
@@ -558,7 +562,8 @@ body:not(.admin) .admin-only{display:none!important}
       const sp=document.createElement("span"); sp.style.left=x+"%"; sp.textContent=f===0?"$0":short(goal*f); $("marksAll").appendChild(sp); });
     // near segment: from 0 to a round number past the next big milestone
     const ms=(settings.milestones||[]).filter(m=>+m.br>0).sort((a,b)=>a.br-b.br);
-    const nextI=ms.findIndex(m=>!m.minor && c.peak<m.br);
+    const kindOf=m=>m.kind||(m.minor?"minor":"major");
+    const nextI=ms.findIndex(m=>kindOf(m)==="major" && c.peak<m.br);
     const ref=Math.max(c.profit, c.peak, nextI>=0?ms[nextI].br:0)*1.15;
     const steps=[1e3,2e3,5e3,1e4,2e4,5e4,1e5,2e5,5e5,1e6]; const zMax=Math.min(goal,steps.find(v=>v>=ref)||goal);
     $("zoomLbl").textContent=short(zMax);
@@ -574,13 +579,16 @@ body:not(.admin) .admin-only{display:none!important}
     let prevExpr=null;
     ms.forEach((m,i)=>{
       if(m.br>zMax) return;
-      const st=c.peak>=m.br?"done":i===nextI?"next":"";
-      const d=document.createElement("button"); d.type="button"; d.className="ms-dot mark-ms "+st+(m.minor?" minor":"");
+      const k=kindOf(m);
+      const st=(m.done||c.peak>=m.br)?"done":i===nextI?"next":"";
+      const d=document.createElement("button"); d.type="button"; d.className="ms-dot mark-ms "+st+(k!=="major"?" "+k:"");
       const base=`max(11px, ${(m.br/zMax*100).toFixed(3)}%)`;
-      const expr = prevExpr ? `max(${base}, calc(${prevExpr} + ${m.minor?18:26}px))` : base;
+      const expr = prevExpr ? `max(${base}, calc(${prevExpr} + ${k==="minor"?18:k==="mid"?22:26}px))` : base;
       d.style.left=expr; prevExpr=expr;
       d.setAttribute("aria-label",money(m.br)+": "+m.label);
-      d.dataset.tip=`<b>${money(m.br)}</b> · ${esc(m.label)}<span class="t">${st==="done"?"пройдено ✓":"осталось "+money(Math.max(0,m.br-c.br))+" по БР"}</span>`;
+      d.dataset.tip = k==="mid"
+        ? `<span class="mid-t">${esc(m.label)}</span><span class="t">${st==="done"?"сделано ✓":"впереди"}</span>`
+        : `<b>${money(m.br)}</b> · ${esc(m.label)}<span class="t">${st==="done"?"пройдено ✓":"осталось "+money(Math.max(0,m.br-c.br))+" по БР"}</span>`;
       $("track").appendChild(d);
     });
     $("rfBr").textContent=signed(c.profit)+" из "+money(goal);
@@ -756,9 +764,9 @@ body:not(.admin) .admin-only{display:none!important}
   }
   let msDraft=[];
   function drawMs(){
-    $("msFields").innerHTML=msDraft.map((m,i)=>`<div class="ms-edit"><div class="field"><label for="msB${i}">БР, $</label><input id="msB${i}" inputmode="decimal" value="${m.br||""}"></div><div class="field"><label for="msL${i}">Что происходит</label><input id="msL${i}" value="${esc(m.label||"")}" placeholder="Доезд на 2 000$ — переход на АБИ $8"></div><button type="button" class="rowbtn" data-msdel="${i}" aria-label="Убрать точку" style="margin-top:18px">×</button><label class="mini"><input type="checkbox" id="msM${i}" ${m.minor?"checked":""}> малая точка (событие)</label></div>`).join("");
+    $("msFields").innerHTML=msDraft.map((m,i)=>`<div class="ms-edit"><div class="field"><label for="msB${i}">БР, $</label><input id="msB${i}" inputmode="decimal" value="${m.br||""}"></div><div class="field"><label for="msL${i}">Что происходит</label><input id="msL${i}" value="${esc(m.label||"")}" placeholder="Доезд на 2 000$ — переход на АБИ $8"></div><button type="button" class="rowbtn" data-msdel="${i}" aria-label="Убрать точку" style="margin-top:18px">×</button><label class="mini">Тип: <select id="msK${i}"><option value="major" ${(m.kind||(m.minor?"minor":"major"))==="major"?"selected":""}>ключевая (большая)</option><option value="mid" ${m.kind==="mid"?"selected":""}>событие, средняя бирюзовая</option><option value="minor" ${(m.kind||(m.minor?"minor":""))==="minor"?"selected":""}>малая</option></select><label style="display:flex;gap:4px;align-items:center"><input type="checkbox" id="msD${i}" ${m.done?"checked":""}> уже сделано</label></label></div>`).join("");
   }
-  function syncMs(){ msDraft=msDraft.map((m,i)=>({br:parse($("msB"+i)?.value),label:($("msL"+i)?.value||"").trim(),minor:!!$("msM"+i)?.checked})); }
+  function syncMs(){ msDraft=msDraft.map((m,i)=>{ const k=$("msK"+i)?.value||"major"; const o={br:parse($("msB"+i)?.value),label:($("msL"+i)?.value||"").trim(),kind:k}; if(k==="minor") o.minor=true; if($("msD"+i)?.checked) o.done=true; return o; }); }
   $("msAdd").onclick=()=>{ syncMs(); msDraft.push({br:"",label:""}); drawMs(); };
   $("msFields").addEventListener("click",e=>{ const b=e.target.closest("[data-msdel]"); if(!b) return; syncMs(); msDraft.splice(+b.dataset.msdel,1); drawMs(); });
   function readForm(){
