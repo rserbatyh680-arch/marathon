@@ -515,7 +515,7 @@ body:not(.admin) .admin-only{display:none!important}
     const steps=[1e3,2e3,5e3,1e4,2e4,5e4,1e5,2e5,5e5,1e6]; const zMax=Math.min(goal,steps.find(v=>v>=ref)||goal);
     $("zoomLbl").textContent=short(zMax);
     const zp=Math.max(0,Math.min(1,c.profit/zMax));
-    $("zoomPct").textContent=fmtPct(zp*100)+" участка";
+    $("zoomPct").textContent=fmtPct(zp*100)+" до точки "+short(zMax).replace("$","");
     $("fill").style.width=(zp*100).toFixed(3)+"%";
     $("fill").style.backgroundSize=(zp>0?(goal/c.profit*100).toFixed(2):100)+"% 100%";
     $("track").querySelectorAll(".mark,.mark-ms").forEach(m=>m.remove());
