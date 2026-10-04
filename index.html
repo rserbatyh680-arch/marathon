@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#160f1d">
+<meta name="theme-color" content="#0c0e12">
 <title>BudiValen покоряет планету</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,12 +11,12 @@
 <style>
 /* Layout: personal ledger — progress rail on top, main column of charts/history, side "cash desk" with the session form. Single dark look by choice. */
 :root{
-  --bg:#160f1d;
-  --surface:#20172a;
-  --surface-2:#2a1f36;
-  --line:#3a2c48;
-  --fg:#f1eaf3;
-  --muted:#a395b0;
+  --bg:#0c0e12;
+  --surface:#14171d;
+  --surface-2:#1b1f27;
+  --line:#262b35;
+  --fg:#e9e6df;
+  --muted:#8b8f99;
   --brass:#d6a54a;
   --brass-soft:rgba(214,165,74,.14);
   --up:#43c08a;
@@ -28,7 +28,7 @@
   color-scheme:dark;
 }
 *{box-sizing:border-box}
-body{background:radial-gradient(1200px 600px at 85% -10%,#3a1f4a 0%,transparent 60%),radial-gradient(900px 500px at -10% 110%,#1f2a4a 0%,transparent 55%),var(--bg);background-attachment:fixed;color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.45;margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.45;margin:0}
 .wrap{max-width:1120px;margin:0 auto;padding:20px 16px 48px}
 .num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
 .up{color:var(--up)}.down{color:var(--down)}.muted{color:var(--muted)}
@@ -41,11 +41,13 @@ button{cursor:pointer}
 /* header */
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
 .brand{display:flex;align-items:center;gap:12px}
+.avatar{width:72px;height:72px;border-radius:50%;flex:none;object-fit:cover;border:2px solid var(--brass);box-shadow:0 0 0 4px var(--brass-soft)}
+.who{display:grid;gap:2px;min-width:0}
+.who .name{font-family:var(--f-display);font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.02em}
 .chip{width:38px;height:38px;border-radius:50%;flex:none;background:
   repeating-conic-gradient(var(--brass) 0 22.5deg,var(--surface-2) 22.5deg 45deg);display:grid;place-items:center}
 .chip::after{content:"";width:24px;height:24px;border-radius:50%;background:var(--bg);border:2px solid var(--brass)}
-h1{font-size:20px;letter-spacing:.01em}
-h1 small{display:block;font-family:var(--f-body);font-weight:400;font-size:13px;color:var(--muted);letter-spacing:0;margin-top:2px}
+h1{font-size:clamp(20px,3.4vw,28px);letter-spacing:.01em;line-height:1.2}
 .badge{font-size:12px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
 .badge.demo{border-color:var(--brass);color:var(--brass)}
 
@@ -59,7 +61,18 @@ h1 small{display:block;font-family:var(--f-body);font-weight:400;font-size:13px;
 .marks{position:relative;height:18px;font-family:var(--f-num);font-size:11px;color:var(--muted)}
 .marks span{position:absolute;transform:translateX(-50%);white-space:nowrap}
 .marks span:first-child{transform:none}.marks span:last-child{transform:translateX(-100%)}
-.rail-foot{display:flex;gap:24px;flex-wrap:wrap;margin-top:12px;font-size:13px;color:var(--muted)}
+.ms-dot{position:absolute;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;transform:rotate(45deg);background:var(--surface);border:2px solid var(--muted);z-index:1}
+.ms-dot.done{background:var(--brass);border-color:var(--brass)}
+.ms-dot.next{border-color:var(--brass);box-shadow:0 0 0 4px var(--brass-soft)}
+.ms-list{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.ms{display:grid;gap:2px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;min-width:0;font-size:13px}
+.ms b{font-family:var(--f-num);font-weight:600}
+.ms .t{font-size:11px;color:var(--muted)}
+.ms.done{border-color:rgba(214,165,74,.45);background:var(--brass-soft)}
+.ms.done .t{color:var(--brass)}
+.ms.next{border-color:var(--brass)}
+.ms-edit{display:grid;grid-template-columns:110px minmax(0,1fr) auto;gap:6px;align-items:center}
+.rail-foot{display:flex;gap:6px 24px;flex-wrap:wrap;margin-top:12px;font-size:13px;color:var(--muted)}
 .rail-foot b{color:var(--fg);font-family:var(--f-num);font-weight:600}
 
 /* grid */
@@ -120,7 +133,7 @@ h2{font-size:14px;letter-spacing:.04em;text-transform:uppercase}
 .wl{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;font-size:13px}
 .wl .bar{grid-column:1/-1;height:4px;border-radius:2px;background:var(--surface-2);overflow:hidden}
 .wl .bar i{display:block;height:100%;background:var(--brass)}
-.wl.wal .bar i{background:#8f7fb0}
+.wl.wal .bar i{background:#7f8aa3}
 .totals{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
 .totals .v{font-family:var(--f-num);font-weight:600}
 
@@ -155,8 +168,8 @@ body:not(.admin) .admin-only{display:none!important}
 <div class="wrap">
   <header class="top">
     <div class="brand">
-      <div class="chip" aria-hidden="true"></div>
-      <h1>BudiValen покоряет планету<small id="subtitle">Цель: от $100 до $1 000 000</small></h1>
+      <img class="avatar" src="avatar.jpg" alt="BudiValen" width="72" height="72">
+      <div class="who"><span class="name">BudiValen покоряет планету</span><h1 id="subtitle">Цель: от $100 до $1 000 000</h1></div>
     </div>
     <span class="badge" id="modeBadge">Загрузка…</span>
   </header>
@@ -168,6 +181,7 @@ body:not(.admin) .admin-only{display:none!important}
     </div>
     <div class="track" id="track"><div class="fill" id="fill" style="width:0"></div></div>
     <div class="marks" id="marks"></div>
+    <div class="ms-list" id="msList"></div>
     <div class="rail-foot">
       <span>Банкролл <b id="rfBr">—</b></span>
       <span>Осталось <b id="rfLeft">—</b></span>
@@ -298,6 +312,11 @@ body:not(.admin) .admin-only{display:none!important}
               <div class="field"><label for="sGoal">Цель, $</label><input id="sGoal" inputmode="decimal"></div>
             </div>
             <div class="field"><label for="sDate">Дата старта (день №1)</label><input id="sDate" type="date"></div>
+            <div class="fgroup">
+              <span class="label">Ключевые точки пути</span>
+              <div class="fgroup" id="msFields"></div>
+              <button type="button" class="btn-ghost" id="msAdd">+ Добавить точку</button>
+            </div>
             <button type="submit" class="btn">Сохранить настройки</button>
             <div class="msg" id="setMsg" role="status"></div>
           </form>
@@ -322,7 +341,8 @@ body:not(.admin) .admin-only{display:none!important}
 <script>
 (() => {
   const ROOMS = 6;
-  const DEFAULT_SETTINGS = { rooms:["GGPoker","PokerStars","ACR","CoinPoker","iPoker","Room 6"], startBR:100, goal:1000000, startDate:"" };
+  const DEFAULT_SETTINGS = { rooms:["GGPoker","PokerStars","ACR","CoinPoker","iPoker","Room 6"], startBR:100, goal:1000000, startDate:"",
+    milestones:[{br:500,label:"АБИ $1"},{br:2000,label:"АБИ $3"},{br:10000,label:"АБИ $10"},{br:50000,label:"АБИ $30"},{br:250000,label:"АБИ $100"}] };
   let settings = structuredClone(DEFAULT_SETTINGS);
   let sessions = [];
   let store = null;
@@ -466,13 +486,17 @@ body:not(.admin) .admin-only{display:none!important}
     $("pct").textContent=(p*100).toFixed(1).replace(".",",")+"%";
     const marks=[]; for(let e=Math.ceil(lo);e<=Math.floor(hi);e++) marks.push(e);
     if(!marks.includes(lo)) marks.unshift(lo);
-    $("track").querySelectorAll(".mark").forEach(m=>m.remove());
+    $("track").querySelectorAll(".mark,.mark-ms").forEach(m=>m.remove());
     $("marks").innerHTML="";
     marks.forEach(e=>{
       const x=(e-lo)/(hi-lo)*100;
       if(x>0 && x<100){ const m=document.createElement("div"); m.className="mark"; m.style.left=x+"%"; $("track").appendChild(m); }
       const s=document.createElement("span"); s.style.left=x+"%"; s.textContent=short(Math.pow(10,e)); $("marks").appendChild(s);
     });
+    const ms=(settings.milestones||[]).filter(m=>+m.br>0).sort((a,b)=>a.br-b.br);
+    const nextI=ms.findIndex(m=>c.br<m.br);
+    ms.forEach((m,i)=>{ const x=Math.max(0,Math.min(100,(Math.log10(m.br)-lo)/(hi-lo)*100)); const d=document.createElement("div"); d.className="ms-dot mark-ms "+(c.br>=m.br?"done":i===nextI?"next":""); d.style.left=x+"%"; d.title=short(m.br)+" — "+m.label; $("track").appendChild(d); });
+    $("msList").innerHTML=ms.map((m,i)=>{ const st=c.br>=m.br?"done":i===nextI?"next":""; const t=st==="done"?"пройдено":st==="next"?"осталось "+money(m.br-c.br):"впереди"; return `<div class="ms ${st}"><span><b>${short(m.br)}</b> · ${esc(m.label)}</span><span class="t">${t}</span></div>`; }).join("");
     $("rfBr").textContent=money(c.br);
     $("rfLeft").textContent=money(Math.max(0,(settings.goal||1e6)-c.br));
     $("rfX").textContent="×"+(c.br/(c.start||100)).toFixed(c.br/(c.start||100)<10?2:0).replace(".",",");
@@ -534,7 +558,7 @@ body:not(.admin) .admin-only{display:none!important}
     const Y=v=> T + (H-T-B)*(1-(f(v)-y0)/(y1-y0||1));
     let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="График банкролла">`;
     s+=`<defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d6a54a" stop-opacity=".22"/><stop offset="1" stop-color="#d6a54a" stop-opacity="0"/></linearGradient></defs>`;
-    ticks.forEach(v=>{ const y=Y(v); s+=`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="#3a2c48" stroke-width="1"/><text x="${L-8}" y="${y+4}" text-anchor="end">${short(v)}</text>`; });
+    ticks.forEach(v=>{ const y=Y(v); s+=`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="#262b35" stroke-width="1"/><text x="${L-8}" y="${y+4}" text-anchor="end">${short(v)}</text>`; });
     // goal line if within view
     const goal=settings.goal||1e6; if(goal<=mx && goal>=mn){ const y=Y(goal); s+=`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="#d6a54a" stroke-dasharray="4 4"/>`; }
     // area
@@ -548,10 +572,10 @@ body:not(.admin) .admin-only{display:none!important}
     let pi=0; pts.forEach((p,i)=>{ if(p.br>=pts[pi].br) pi=i; });
     const px=X(pi), py=Y(pts[pi].br);
     const lab="пик "+short(pts[pi].br); const lw=lab.length*7+14; const lx=Math.min(Math.max(px-lw/2,L),W-R-lw);
-    s+=`<rect x="${lx}" y="${Math.max(2,py-26)}" width="${lw}" height="18" rx="5" fill="#2a1f36" stroke="#d6a54a"/><text x="${lx+lw/2}" y="${Math.max(2,py-26)+13}" text-anchor="middle" style="fill:#d6a54a">${lab}</text>`;
+    s+=`<rect x="${lx}" y="${Math.max(2,py-26)}" width="${lw}" height="18" rx="5" fill="#1b1f27" stroke="#d6a54a"/><text x="${lx+lw/2}" y="${Math.max(2,py-26)+13}" text-anchor="middle" style="fill:#d6a54a">${lab}</text>`;
     // last point
-    const li=pts.length-1; s+=`<circle cx="${X(li)}" cy="${Y(pts[li].br)}" r="4.5" fill="#d6a54a" stroke="#160f1d" stroke-width="2"/>`;
-    s+=`<line id="hx" x1="0" x2="0" y1="${T}" y2="${H-B}" stroke="#a395b0" stroke-dasharray="2 3" visibility="hidden"/><circle id="hc" r="4" fill="#f1eaf3" visibility="hidden"/>`;
+    const li=pts.length-1; s+=`<circle cx="${X(li)}" cy="${Y(pts[li].br)}" r="4.5" fill="#d6a54a" stroke="#0c0e12" stroke-width="2"/>`;
+    s+=`<line id="hx" x1="0" x2="0" y1="${T}" y2="${H-B}" stroke="#8b8f99" stroke-dasharray="2 3" visibility="hidden"/><circle id="hc" r="4" fill="#e9e6df" visibility="hidden"/>`;
     s+=`<rect x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}" fill="transparent" id="hit"/></svg><div class="tip" id="tip" hidden></div>`;
     box.innerHTML=s;
     const svg=box.querySelector("svg"), tip=$("tip"), hx=svg.querySelector("#hx"), hc=svg.querySelector("#hc");
@@ -578,7 +602,7 @@ body:not(.admin) .admin-only{display:none!important}
     const bw=(W-L-R)/rows.length;
     const Y=v=>T+(H-T-B)*(1-v/mx);
     let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Турниров за сессию">`;
-    for(let v=0;v<=mx;v+=st){ s+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="#3a2c48"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end">${v}</text>`; }
+    for(let v=0;v<=mx;v+=st){ s+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="#262b35"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end">${v}</text>`; }
     rows.forEach((r,i)=>{ const v=+r.mtt||0; const h=(H-T-B)*v/mx; s+=`<rect x="${L+i*bw+bw*0.18}" y="${Y(v)}" width="${Math.max(1,bw*0.64)}" height="${h}" rx="2" fill="${r.res>=0?"#43c08a":"#e8575c"}" fill-opacity=".75"><title>${dShort(r.date)}: ${v} МТТ, ${signed(r.res)}</title></rect>`; });
     s+=`<line x1="${L}" x2="${W-R}" y1="${Y(avg)}" y2="${Y(avg)}" stroke="#d6a54a" stroke-dasharray="4 4"/>`;
     s+=`<text x="${L}" y="${H-6}">${dShort(rows[0].date)}</text><text x="${W-R}" y="${H-6}" text-anchor="end">${dShort(rows[rows.length-1].date)}</text>`;
@@ -623,7 +647,15 @@ body:not(.admin) .admin-only{display:none!important}
     $("roomFields").innerHTML=settings.rooms.map((n,i)=>`<div class="field"><label for="fR${i}">${esc(n||("Рум "+(i+1)))}</label><input id="fR${i}" inputmode="decimal" placeholder="0"></div>`).join("");
     $("roomNameFields").innerHTML=settings.rooms.map((n,i)=>`<div class="field"><label for="sR${i}">Рум ${i+1}</label><input id="sR${i}" value="${esc(n)}"></div>`).join("");
     $("sStart").value=settings.startBR; $("sGoal").value=settings.goal; $("sDate").value=settings.startDate||"";
+    msDraft=(settings.milestones||[]).map(m=>({...m})); drawMs();
   }
+  let msDraft=[];
+  function drawMs(){
+    $("msFields").innerHTML=msDraft.map((m,i)=>`<div class="ms-edit"><div class="field"><label for="msB${i}">БР, $</label><input id="msB${i}" inputmode="decimal" value="${m.br||""}"></div><div class="field"><label for="msL${i}">Что происходит</label><input id="msL${i}" value="${esc(m.label||"")}" placeholder="переход на АБИ $5"></div><button type="button" class="rowbtn" data-msdel="${i}" aria-label="Убрать точку" style="margin-top:18px">×</button></div>`).join("");
+  }
+  function syncMs(){ msDraft=msDraft.map((m,i)=>({br:parse($("msB"+i)?.value),label:($("msL"+i)?.value||"").trim()})); }
+  $("msAdd").onclick=()=>{ syncMs(); msDraft.push({br:"",label:""}); drawMs(); };
+  $("msFields").addEventListener("click",e=>{ const b=e.target.closest("[data-msdel]"); if(!b) return; syncMs(); msDraft.splice(+b.dataset.msdel,1); drawMs(); });
   function readForm(){
     return { date:$("fDate").value||today(), mtt:Math.round(parse($("fMtt").value)),
       rooms:[...Array(ROOMS)].map((_,i)=>parse($("fR"+i).value)),
@@ -673,7 +705,7 @@ body:not(.admin) .admin-only{display:none!important}
   });
   $("setForm").addEventListener("submit",async e=>{
     e.preventDefault(); if(!store) return;
-    const st={ rooms:[...Array(ROOMS)].map((_,i)=>$("sR"+i).value.trim()||("Рум "+(i+1))), startBR:parse($("sStart").value)||100, goal:parse($("sGoal").value)||1e6, startDate:$("sDate").value||"" };
+    const st={ rooms:[...Array(ROOMS)].map((_,i)=>$("sR"+i).value.trim()||("Рум "+(i+1))), startBR:parse($("sStart").value)||100, goal:parse($("sGoal").value)||1e6, startDate:$("sDate").value||"", milestones:(syncMs(),msDraft.filter(m=>m.br>0&&m.label)) };
     try{ await store.saveSettings(st); flash("setMsg","Настройки сохранены."); }catch(err){ flash("setMsg","Не сохранилось: "+(err.message||err.code),true); }
   });
 
