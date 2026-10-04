@@ -59,8 +59,12 @@ h1{font-size:clamp(20px,3.4vw,28px);letter-spacing:.01em;line-height:1.2}
 .rail-title{font-family:"Russo One",var(--f-display);font-weight:400;font-size:clamp(17px,2.4vw,22px);color:#fff;text-transform:none;letter-spacing:.02em}
 .rail-title span{font-family:var(--f-body);font-size:.68em;color:#fff;opacity:.85;letter-spacing:0}
 .rail-head .pct{font-family:var(--f-num);color:var(--brass);font-weight:600;font-size:18px}
-.track{position:relative;height:12px;border-radius:999px;background:linear-gradient(90deg,rgba(0,240,112,.25),rgba(255,224,0,.2) 48%,rgba(255,16,48,.28)),var(--surface-2);margin:30px 0 14px}
+.track{position:relative;height:12px;border-radius:999px;background:linear-gradient(90deg,rgba(0,240,112,.25),rgba(255,224,0,.2) 48%,rgba(255,16,48,.28)),var(--surface-2);margin:18px 0 12px}
 .fill{position:absolute;inset:0 auto 0 0;border-radius:999px;background:linear-gradient(90deg,#00f070 0%,#7dff3a 22%,#ffe000 48%,#ff7a00 72%,#ff1030 100%);box-shadow:0 0 12px rgba(0,240,112,.35);background-repeat:no-repeat;transition:width .6s}
+.track.thin{height:8px;margin:8px 0 8px}
+.track.thin .fill{min-width:4px}
+.sub-label{display:flex;justify-content:space-between;gap:12px;font-size:12px;color:var(--muted);margin-top:14px}
+.sub-label b{color:var(--fg);font-family:var(--f-num);font-weight:600}
 .mark{position:absolute;top:-6px;width:2px;height:22px;background:var(--line)}
 .marks{position:relative;height:18px;font-family:var(--f-num);font-size:11px;color:var(--muted)}
 .marks span{position:absolute;transform:translateX(-50%);white-space:nowrap}
@@ -190,13 +194,17 @@ body:not(.admin) .admin-only{display:none!important}
       <h2 class="rail-title">Путь к 1М <span>· ключевые точки развития</span></h2>
       <span class="pct" id="pct">0%</span>
     </div>
+    <div class="sub-label"><span>Весь путь до <b id="goalLbl">$1M</b></span></div>
+    <div class="track thin" id="trackAll"><div class="fill" id="fillAll" style="width:0"></div></div>
+    <div class="marks" id="marksAll"></div>
+    <div class="sub-label"><span>Ближний участок: $0 → <b id="zoomLbl">—</b></span><span class="muted" id="zoomPct"></span></div>
     <div class="track" id="track"><div class="fill" id="fill" style="width:0"></div></div>
     <div class="marks" id="marks"></div>
     <div class="ms-tip" id="msTip" hidden></div>
     <div class="rail-foot">
-      <span>Банкролл <b id="rfBr">—</b></span>
+      <span>Профит <b id="rfBr">—</b></span>
       <span>Осталось <b id="rfLeft">—</b></span>
-      <span>× от старта <b id="rfX">—</b></span>
+      <span>Банкролл <b id="rfX">—</b></span>
       <span>Турниров до цели текущим темпом <b id="rfMtt">—</b></span>
     </div>
   </section>
@@ -488,36 +496,50 @@ body:not(.admin) .admin-only{display:none!important}
 
   /* ---------- render: rail ---------- */
   function renderRail(c){
-    const lo=Math.log10(c.start||100), hi=Math.log10(settings.goal||1e6);
-    const p = Math.max(0,Math.min(1,(Math.log10(Math.max(c.br,1))-lo)/(hi-lo)));
-    $("fill").style.width=(p*100).toFixed(2)+"%";
-    $("fill").style.backgroundSize = (p>0? (100/p).toFixed(2) : 100)+"% 100%";
-    $("pct").textContent=(p*100).toFixed(1).replace(".",",")+"%";
-    const marks=[]; for(let e=Math.ceil(lo);e<=Math.floor(hi);e++) marks.push(e);
-    if(!marks.includes(lo)) marks.unshift(lo);
+    const goal=settings.goal||1e6;
+    const p=Math.max(0,Math.min(1,c.profit/goal));
+    const fmtPct=v=>(v<10?v.toFixed(2):v.toFixed(1)).replace(".",",")+"%";
+    $("pct").textContent=fmtPct(p*100);
+    $("goalLbl").textContent=short(goal);
+    // whole path: true linear scale, gradient spans the whole goal
+    $("fillAll").style.width=(p*100).toFixed(3)+"%";
+    $("fillAll").style.backgroundSize=(p>0?(100/p).toFixed(2):100)+"% 100%";
+    $("trackAll").querySelectorAll(".mark").forEach(m=>m.remove());
+    $("marksAll").innerHTML="";
+    [0,.25,.5,.75,1].forEach(f=>{ const x=f*100;
+      if(x>0&&x<100){ const m=document.createElement("div"); m.className="mark"; m.style.left=x+"%"; $("trackAll").appendChild(m); }
+      const sp=document.createElement("span"); sp.style.left=x+"%"; sp.textContent=f===0?"$0":short(goal*f); $("marksAll").appendChild(sp); });
+    // near segment: from 0 to a round number past the next big milestone
+    const ms=(settings.milestones||[]).filter(m=>+m.br>0).sort((a,b)=>a.br-b.br);
+    const nextI=ms.findIndex(m=>!m.minor && c.peak<m.br);
+    const ref=Math.max(c.profit, c.peak, nextI>=0?ms[nextI].br:0)*1.15;
+    const steps=[1e3,2e3,5e3,1e4,2e4,5e4,1e5,2e5,5e5,1e6]; const zMax=Math.min(goal,steps.find(v=>v>=ref)||goal);
+    $("zoomLbl").textContent=short(zMax);
+    const zp=Math.max(0,Math.min(1,c.profit/zMax));
+    $("zoomPct").textContent=fmtPct(zp*100)+" участка";
+    $("fill").style.width=(zp*100).toFixed(3)+"%";
+    $("fill").style.backgroundSize=(zp>0?(goal/c.profit*100).toFixed(2):100)+"% 100%";
     $("track").querySelectorAll(".mark,.mark-ms").forEach(m=>m.remove());
     $("marks").innerHTML="";
-    marks.forEach(e=>{
-      const x=(e-lo)/(hi-lo)*100;
-      if(x>0 && x<100){ const m=document.createElement("div"); m.className="mark"; m.style.left=x+"%"; $("track").appendChild(m); }
-      const s=document.createElement("span"); s.style.left=x+"%"; s.textContent=short(Math.pow(10,e)); $("marks").appendChild(s);
-    });
-    const ms=(settings.milestones||[]).filter(m=>+m.br>0).sort((a,b)=>a.br-b.br);
-    const nextI=ms.findIndex(m=>!m.minor && c.br<m.br);
+    [0,.25,.5,.75,1].forEach(f=>{ const x=f*100;
+      if(x>0&&x<100){ const m=document.createElement("div"); m.className="mark"; m.style.left=x+"%"; $("track").appendChild(m); }
+      const sp=document.createElement("span"); sp.style.left=x+"%"; sp.textContent=f===0?"$0":short(zMax*f); $("marks").appendChild(sp); });
+    let prevExpr=null;
     ms.forEach((m,i)=>{
-      const x=Math.max(0,Math.min(100,(Math.log10(m.br)-lo)/(hi-lo)*100));
-      const st=c.br>=m.br?"done":i===nextI?"next":"";
+      if(m.br>zMax) return;
+      const st=c.peak>=m.br?"done":i===nextI?"next":"";
       const d=document.createElement("button"); d.type="button"; d.className="ms-dot mark-ms "+st+(m.minor?" minor":"");
-      const prev=ms.slice(0,i).reverse().find(q=>!q.minor);
-      d.style.left = (m.minor && prev) ? `max(${x}%, calc(${((Math.log10(prev.br)-lo)/(hi-lo)*100).toFixed(2)}% + 24px))` : x+"%";
+      const base=`max(11px, ${(m.br/zMax*100).toFixed(3)}%)`;
+      const expr = prevExpr ? `max(${base}, calc(${prevExpr} + ${m.minor?18:26}px))` : base;
+      d.style.left=expr; prevExpr=expr;
       d.setAttribute("aria-label",money(m.br)+": "+m.label);
-      d.dataset.tip=`<b>${money(m.br)}</b> · ${esc(m.label)}<span class="t">${st==="done"?"пройдено ✓":"осталось "+money(m.br-c.br)}</span>`;
+      d.dataset.tip=`<b>${money(m.br)}</b> · ${esc(m.label)}<span class="t">${st==="done"?"пройдено ✓":"осталось "+money(Math.max(0,m.br-c.br))+" по БР"}</span>`;
       $("track").appendChild(d);
     });
-    $("rfBr").textContent=money(c.br);
-    $("rfLeft").textContent=money(Math.max(0,(settings.goal||1e6)-c.br));
-    $("rfX").textContent="×"+(c.br/(c.start||100)).toFixed(c.br/(c.start||100)<10?2:0).replace(".",",");
-    $("rfMtt").textContent = c.perMtt>0 ? "~"+nf.format(Math.round(Math.max(0,(settings.goal||1e6)-c.br)/c.perMtt)) : "—";
+    $("rfBr").textContent=signed(c.profit)+" из "+money(goal);
+    $("rfLeft").textContent=money(Math.max(0,goal-c.profit));
+    $("rfX").textContent=money(c.br);
+    $("rfMtt").textContent = c.perMtt>0 ? "~"+nf.format(Math.round(Math.max(0,goal-c.profit)/c.perMtt)) : "—";
   }
 
   function showTip(d){ const tip=$("msTip"), rail=d.closest(".rail"); tip.innerHTML=d.dataset.tip; tip.hidden=false;
