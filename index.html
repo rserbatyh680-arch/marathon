@@ -97,8 +97,8 @@ h1{font-size:clamp(20px,3.4vw,28px);letter-spacing:.01em;line-height:1.2}
 h2{font-size:14px;letter-spacing:.04em;text-transform:uppercase}
 
 /* tiles */
-.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
-@media (max-width:560px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+@media (max-width:560px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.tile:last-child{grid-column:1/-1}}
 .tile{background:var(--surface);padding:14px 16px;display:grid;gap:6px}
 .tile .v{font-family:var(--f-num);font-size:21px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tile .s{font-size:12px;color:var(--muted)}
@@ -377,12 +377,12 @@ body:not(.admin) .admin-only{display:none!important}
     const list = sessions.slice().sort((a,b)=> a.date===b.date ? (a.ts||0)-(b.ts||0) : a.date<b.date?-1:1);
     const start = settings.startBR || 100;
     const startDate = settings.startDate || (list[0]?.date) || today();
-    let prev = start, cum = 0, cumPeak = 0, totW=0, totR=0, totM=0, plus=0, peak=start, buySum=0, buyM=0, hands=0, wrH=0, wrSum=0;
+    let roiRes = 0, prev = start, cum = 0, cumPeak = 0, totW=0, totR=0, totM=0, plus=0, peak=start, buySum=0, buyM=0, hands=0, wrH=0, wrSum=0;
     const rows = list.map(s=>{
       const rooms=(s.rooms||[]).map(Number);
       const br = rooms.reduce((a,b)=>a+(+b||0),0) + (+s.off||0) + (+s.usdt||0);
       const res = br - prev + (+s.withdraw||0) - (+s.rakeback||0);
-      cum += res; cumPeak = Math.max(cumPeak, cum);
+      cum += res; cumPeak = Math.max(cumPeak, cum); if(+s.buyins) roiRes += res;
       if(+s.buyins && +s.mtt){ buySum+=+s.buyins; buyM+=+s.mtt; }
       hands += +s.hands||0; if(s.wr!=null && s.wr!=="" && +s.hands){ wrH+=+s.hands; wrSum+=(+s.wr)*(+s.hands); }
       prev = br; totW += +s.withdraw||0; totR += +s.rakeback||0; totM += +s.mtt||0; if(res>0) plus++; peak=Math.max(peak,br);
@@ -392,7 +392,7 @@ body:not(.admin) .admin-only{display:none!important}
     const br = last ? last.br : start;
     const profit = cum;
     return { rows, start, br, profit, totW, totR, totM, plus, peak, startDate,
-      abi: buyM ? buySum/buyM : null, hands, wr: wrH ? wrSum/wrH : null,
+      abi: buyM ? buySum/buyM : null, roi: buySum ? roiRes/buySum*100 : null, buySum, hands, wr: wrH ? wrSum/wrH : null,
       perMtt: totM ? profit/totM : 0,
       day: last ? last.day : 0,
       lastRooms: last ? last.rooms : [], lastOff: last ? +last.off||0 : 0, lastUsdt: last ? +last.usdt||0 : 0 };
@@ -542,6 +542,7 @@ body:not(.admin) .admin-only{display:none!important}
       ["Турниров", nf.format(c.totM), "", "за весь марафон"],
       ["МТТ / сессия", n?nf.format(Math.round(c.totM/n)):"—", "", "в среднем"],
       ["$ / МТТ", c.totM?(c.perMtt>=0?"+":"−")+Math.abs(c.perMtt).toFixed(2).replace(".",",")+"$":"—", cls(c.perMtt), "профит на турнир"],
+      ["ROI", c.roi!=null?(c.roi>=0?"+":"−")+Math.abs(c.roi).toFixed(1).replace(".",",")+"%":"—", c.roi!=null?cls(c.roi):"", c.roi!=null?"профит / бай-ины "+money(c.buySum):"нужна сумма бай-инов"],
       ["АБИ", c.abi!=null?abiFmt(c.abi):"—", "", c.abi!=null&&n&&c.rows[n-1].abi!=null?"последняя "+abiFmt(c.rows[n-1].abi):"средний бай-ин"]
     ];
     const lastH=[...c.rows].reverse().find(r=>+r.hands), lastW=[...c.rows].reverse().find(r=>r.wr!=null&&r.wr!=="");
@@ -600,7 +601,7 @@ body:not(.admin) .admin-only{display:none!important}
       hx.setAttribute("x1",x);hx.setAttribute("x2",x);hx.setAttribute("visibility","visible");
       hc.setAttribute("cx",x);hc.setAttribute("cy",y);hc.setAttribute("visibility","visible");
       tip.hidden=false; tip.style.left=(x*r.width/W)+"px"; tip.style.top=(y*r.height/H)+"px";
-      tip.innerHTML = p.start ? `Старт · <b>0$</b>` : `${dShort(p.date)} · профит <b class="${cls(p.v)}">${signed(p.v)}</b> · сессия <b class="${cls(p.res)}">${signed(p.res)}</b>`;
+      tip.innerHTML = p.start ? `Старт · <b>0$</b>` : `${dShort(p.date)} · профит <b class="${cls(p.v)}">${signed(p.v)}</b> · сессия <b class="${cls(p.res)}">${signed(p.res)}</b>${p.note?`<br><span style="color:var(--brass)">${esc(p.note)}</span>`:""}`;
     };
     svg.addEventListener("pointermove",move); svg.addEventListener("pointerdown",move);
     svg.addEventListener("pointerleave",()=>{ tip.hidden=true; hx.setAttribute("visibility","hidden"); hc.setAttribute("visibility","hidden"); });
