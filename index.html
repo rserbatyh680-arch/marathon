@@ -139,9 +139,13 @@ h2{font-size:14px;letter-spacing:.04em;text-transform:uppercase}
 
 /* tiles */
 .tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
-@media (max-width:560px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.tile:last-child{grid-column:1/-1}}
+@media (max-width:560px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.tile:last-child,.abi-tile{grid-column:1/-1}.abi2{max-width:320px}}
 .tile{background:var(--surface);padding:14px 16px;display:grid;gap:8px;align-content:start}
 .tile .v{font-family:var(--f-num);font-size:21px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;justify-self:start;max-width:100%;padding:4px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2)}
+.abi2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.abi2>div{display:grid;gap:6px;min-width:0}
+.abi2 .v{font-size:18px;padding:4px 10px}
+.tile .v.now{border-color:rgba(214,165,74,.55);color:var(--brass)}
 .tile .v.up{border-color:rgba(67,192,138,.45)}
 .tile .v.down{border-color:rgba(232,87,92,.45)}
 .tile:last-child{grid-column:1/-1}
@@ -662,7 +666,7 @@ body:not(.admin) .admin-only{display:none!important}
       ["МТТ / сессия", n?nf.format(Math.round(c.totM/n)):"—", "", "в среднем"],
       ["$ / МТТ", c.totM?(c.perMtt>=0?"+":"−")+Math.abs(c.perMtt).toFixed(2).replace(".",",")+"$":"—", cls(c.perMtt), "профит на турнир"],
       ["ROI", c.roi!=null?(c.roi>=0?"+":"−")+Math.abs(c.roi).toFixed(1).replace(".",",")+"%":"—", c.roi!=null?cls(c.roi):"", c.roi!=null?"профит / бай-ины "+money(c.buySum):"нужна сумма бай-инов"],
-      ["АБИ", c.abi!=null?abiFmt(c.abi):"—", "", c.abi!=null&&n&&c.rows[n-1].abi!=null?"последняя "+abiFmt(c.rows[n-1].abi):"средний бай-ин"],
+      ["АБИ", "", "abi-split", ""],
       ["Работа над теорией", nf.format(+(settings.theoryHours||0))+" ч", "theory", "визард, ХРК, флопзилла, обсуждение раздач"]
     ];
     const lastH=[...c.rows].reverse().find(r=>+r.hands), lastW=[...c.rows].reverse().find(r=>r.wr!=null&&r.wr!=="");
@@ -671,7 +675,9 @@ body:not(.admin) .admin-only{display:none!important}
     $("hWr").textContent = c.wr!=null ? (c.wr>=0?"+":"−")+Math.abs(c.wr).toFixed(1).replace(".",",") : "—";
     $("hWr").className = "big num "+(c.wr!=null?cls(c.wr):"");
     $("hWrS").textContent = lastW ? "последняя сессия "+(+lastW.wr>=0?"+":"−")+Math.abs(+lastW.wr).toFixed(1).replace(".",",") : "среднее по рукам, из трекера";
-    $("tiles").innerHTML=t.map(([l,v,k,s])=>`<div class="tile"><span class="label">${l}</span><span class="v ${k}">${v}</span>${s?`<span class="s">${s}</span>`:""}</div>`).join("");
+    const curAbi=[...c.rows].reverse().find(r=>r.abi!=null)?.abi;
+    const abiTile=`<div class="tile abi-tile"><span class="label">АБИ</span><div class="abi2"><div><span class="v">${c.abi!=null?abiFmt(c.abi):"—"}</span><span class="s">общий</span></div><div><span class="v now">${curAbi!=null?abiFmt(curAbi):"—"}</span><span class="s">играю сейчас</span></div></div></div>`;
+    $("tiles").innerHTML=t.map(([l,v,k,s])=> k==="abi-split" ? abiTile : `<div class="tile"><span class="label">${l}</span><span class="v ${k}">${v}</span>${s?`<span class="s">${s}</span>`:""}</div>`).join("");
   }
 
   /* ---------- charts ---------- */
