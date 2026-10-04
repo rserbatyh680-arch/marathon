@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0c0e12">
+<title>Марафон 100 → 1M</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: personal ledger — progress rail on top, main column of charts/history, side "cash desk" with the session form. Single dark look by choice. */
+:root{
+  --bg:#0c0e12;
+  --surface:#14171d;
+  --surface-2:#1b1f27;
+  --line:#262b35;
+  --fg:#e9e6df;
+  --muted:#8b8f99;
+  --brass:#d6a54a;
+  --brass-soft:rgba(214,165,74,.14);
+  --up:#43c08a;
+  --down:#e8575c;
+  --f-display:"Unbounded","IBM Plex Sans",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-num:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  --r:10px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.45;margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding:20px 16px 48px}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+.up{color:var(--up)}.down{color:var(--down)}.muted{color:var(--muted)}
+h1,h2{font-family:var(--f-display);font-weight:700;margin:0;text-wrap:balance}
+.label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+
+/* header */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.brand{display:flex;align-items:center;gap:12px}
+.chip{width:38px;height:38px;border-radius:50%;flex:none;background:
+  repeating-conic-gradient(var(--brass) 0 22.5deg,var(--surface-2) 22.5deg 45deg);display:grid;place-items:center}
+.chip::after{content:"";width:24px;height:24px;border-radius:50%;background:var(--bg);border:2px solid var(--brass)}
+h1{font-size:20px;letter-spacing:.01em}
+h1 small{display:block;font-family:var(--f-body);font-weight:400;font-size:13px;color:var(--muted);letter-spacing:0;margin-top:2px}
+.badge{font-size:12px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.badge.demo{border-color:var(--brass);color:var(--brass)}
+
+/* progress rail */
+.rail{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;margin-bottom:18px}
+.rail-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.rail-head .pct{font-family:var(--f-num);color:var(--brass);font-weight:600;font-size:18px}
+.track{position:relative;height:10px;border-radius:999px;background:var(--surface-2);margin:22px 0 8px}
+.fill{position:absolute;inset:0 auto 0 0;border-radius:999px;background:linear-gradient(90deg,#8a6a2c,var(--brass));transition:width .6s}
+.mark{position:absolute;top:-6px;width:2px;height:22px;background:var(--line)}
+.marks{position:relative;height:18px;font-family:var(--f-num);font-size:11px;color:var(--muted)}
+.marks span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+.marks span:first-child{transform:none}.marks span:last-child{transform:translateX(-100%)}
+.rail-foot{display:flex;gap:24px;flex-wrap:wrap;margin-top:12px;font-size:13px;color:var(--muted)}
+.rail-foot b{color:var(--fg);font-family:var(--f-num);font-weight:600}
+
+/* grid */
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px;align-items:start}
+.main,.aside{display:grid;gap:18px;min-width:0}
+.aside{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px)}
+@media (max-width:880px){.grid{grid-template-columns:1fr}.aside{display:contents}.aside>.card{order:1}.aside>#formCard{order:-1}}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;min-width:0}
+.card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+h2{font-size:14px;letter-spacing:.04em;text-transform:uppercase}
+
+/* tiles */
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+@media (max-width:560px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tile{background:var(--surface);padding:14px 16px;display:grid;gap:6px}
+.tile .v{font-family:var(--f-num);font-size:21px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .s{font-size:12px;color:var(--muted)}
+
+/* segmented */
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{background:transparent;border:0;padding:6px 11px;font-size:12px;color:var(--muted)}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--brass-soft);color:var(--brass)}
+.controls{display:flex;gap:8px;flex-wrap:wrap}
+
+.chart{position:relative;width:100%}
+.chart svg{display:block;width:100%;height:auto}
+.chart text{fill:var(--muted);font-family:var(--f-num);font-size:11px}
+.tip{position:absolute;pointer-events:none;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12px;white-space:nowrap;transform:translate(-50%,-110%)}
+.tip b{font-family:var(--f-num)}
+.empty{padding:28px 8px;text-align:center;color:var(--muted)}
+
+/* form */
+.form{display:grid;gap:12px}
+.fgroup{display:grid;gap:8px}
+.frow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.field{display:grid;gap:4px;min-width:0}
+.field label{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.field input{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-family:var(--f-num);font-size:14px;min-width:0}
+.field input:focus{border-color:var(--brass);outline:none}
+.preview{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:var(--surface-2);border-radius:8px;padding:10px 12px}
+.preview .v{font-family:var(--f-num);font-weight:600;font-size:17px}
+.btn{background:var(--brass);color:#1a1408;border:0;border-radius:8px;padding:11px 14px;font-weight:600}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-ghost{background:transparent;border:1px solid var(--line);border-radius:8px;padding:9px 12px;color:var(--muted)}
+.actions{display:flex;gap:8px}.actions .btn{flex:1}
+.msg{font-size:13px;min-height:1em}
+
+/* where money */
+.wallets{display:grid;gap:8px}
+.wl{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;font-size:13px}
+.wl .bar{grid-column:1/-1;height:4px;border-radius:2px;background:var(--surface-2);overflow:hidden}
+.wl .bar i{display:block;height:100%;background:var(--brass)}
+.wl.wal .bar i{background:#7f8aa3}
+.totals{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.totals .v{font-family:var(--f-num);font-weight:600}
+
+/* table */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
+th{font-weight:600;text-align:right;color:var(--muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:8px;border-bottom:1px solid var(--line)}
+td{text-align:right;padding:8px;border-bottom:1px solid var(--line);font-family:var(--f-num);font-variant-numeric:tabular-nums}
+th:first-child,td:first-child{text-align:left}
+tr.editing td{background:var(--brass-soft)}
+.rowbtn{background:transparent;border:1px solid transparent;border-radius:6px;color:var(--muted);padding:2px 7px;font-size:12px}
+.rowbtn:hover{border-color:var(--line);color:var(--fg)}
+.rowbtn.danger{color:var(--down);border-color:var(--down)}
+.more{margin-top:10px}
+
+details.settings summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details.settings summary::-webkit-details-marker{display:none}
+details.settings summary::after{content:"＋";color:var(--muted)}
+details.settings[open] summary::after{content:"−"}
+details.settings .form{margin-top:12px}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+body:not(.admin) .admin-only{display:none!important}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:28px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+.linkbtn{background:none;border:0;color:var(--muted);text-decoration:underline;text-underline-offset:3px;padding:4px 0;font-size:12px}
+.login{max-width:420px;margin-top:12px}
+.login p{margin:0 0 10px;font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="chip" aria-hidden="true"></div>
+      <h1>Марафон $100 → $1 000 000<small id="subtitle">Личный трекер банкролла</small></h1>
+    </div>
+    <span class="badge" id="modeBadge">Загрузка…</span>
+  </header>
+
+  <section class="rail" aria-label="Прогресс">
+    <div class="rail-head">
+      <span class="label">Путь к $1M · шкала по нулям</span>
+      <span class="pct" id="pct">0%</span>
+    </div>
+    <div class="track" id="track"><div class="fill" id="fill" style="width:0"></div></div>
+    <div class="marks" id="marks"></div>
+    <div class="rail-foot">
+      <span>Банкролл <b id="rfBr">—</b></span>
+      <span>Осталось <b id="rfLeft">—</b></span>
+      <span>× от старта <b id="rfX">—</b></span>
+      <span>Турниров до цели текущим темпом <b id="rfMtt">—</b></span>
+    </div>
+  </section>
+
+  <div class="grid">
+    <div class="main">
+      <div class="tiles" id="tiles"></div>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>График банкролла</h2>
+          <div class="controls">
+            <div class="seg" id="rangeSeg">
+              <button data-v="7" aria-pressed="false">Неделя</button>
+              <button data-v="30" aria-pressed="false">Месяц</button>
+              <button data-v="all" aria-pressed="true">Всё время</button>
+            </div>
+            <div class="seg" id="scaleSeg">
+              <button data-v="lin" aria-pressed="true">Лин</button>
+              <button data-v="log" aria-pressed="false">Лог</button>
+            </div>
+          </div>
+        </div>
+        <div class="chart" id="brChart"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Турниров за сессию</h2>
+          <span class="muted" style="font-size:13px" id="mttAvg"></span>
+        </div>
+        <div class="chart" id="mttChart"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Сессии</h2>
+          <span class="muted" style="font-size:13px" id="histCount"></span>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Дата</th><th>День</th><th>МТТ</th><th>БР</th><th>Сессия</th><th>Вывод</th><th>РБ</th><th></th></tr></thead>
+            <tbody id="hist"></tbody>
+          </table>
+        </div>
+        <button class="btn-ghost more" id="moreBtn" hidden>Показать все</button>
+      </section>
+    </div>
+
+    <aside class="aside">
+      <section class="card admin-only" id="formCard">
+        <div class="card-head">
+          <h2 id="formTitle">Закрыть сессию</h2>
+          <span class="muted" style="font-size:12px" id="formHint">остатки на конец сессии</span>
+        </div>
+        <form class="form" id="sessForm" novalidate>
+          <div class="frow">
+            <div class="field"><label for="fDate">Дата</label><input id="fDate" type="date"></div>
+            <div class="field"><label for="fMtt">Турниров</label><input id="fMtt" inputmode="numeric" placeholder="0"></div>
+          </div>
+          <div class="fgroup">
+            <span class="label">Румы</span>
+            <div class="frow" id="roomFields"></div>
+          </div>
+          <div class="fgroup">
+            <span class="label">Кошельки</span>
+            <div class="frow">
+              <div class="field"><label for="fOff">Офф кошелёк</label><input id="fOff" inputmode="decimal" placeholder="0"></div>
+              <div class="field"><label for="fUsdt">USDT кошелёк</label><input id="fUsdt" inputmode="decimal" placeholder="0"></div>
+            </div>
+          </div>
+          <div class="fgroup">
+            <span class="label">За сессию</span>
+            <div class="frow">
+              <div class="field"><label for="fWd">Вывод</label><input id="fWd" inputmode="decimal" placeholder="0"></div>
+              <div class="field"><label for="fRb">Рейкбек</label><input id="fRb" inputmode="decimal" placeholder="0"></div>
+            </div>
+          </div>
+          <div class="preview">
+            <div><div class="label">Новый БР</div><div class="v" id="pvBr">—</div></div>
+            <div><div class="label">Сессия</div><div class="v" id="pvRes">—</div></div>
+          </div>
+          <div class="actions">
+            <button type="submit" class="btn" id="saveBtn">Сохранить сессию</button>
+            <button type="button" class="btn-ghost" id="cancelEdit" hidden>Отмена</button>
+          </div>
+          <div class="msg" id="formMsg" role="status"></div>
+        </form>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2>Где банкролл</h2></div>
+        <div class="wallets" id="wallets"></div>
+        <div class="totals">
+          <div><div class="label">Выведено</div><div class="v" id="totWd">—</div></div>
+          <div><div class="label">Рейкбек</div><div class="v" id="totRb">—</div></div>
+        </div>
+      </section>
+
+      <section class="card admin-only">
+        <details class="settings" id="settingsBox">
+          <summary><h2>Настройки</h2></summary>
+          <form class="form" id="setForm" novalidate>
+            <div class="fgroup">
+              <span class="label">Названия румов</span>
+              <div class="frow" id="roomNameFields"></div>
+            </div>
+            <div class="frow">
+              <div class="field"><label for="sStart">Стартовый БР, $</label><input id="sStart" inputmode="decimal"></div>
+              <div class="field"><label for="sGoal">Цель, $</label><input id="sGoal" inputmode="decimal"></div>
+            </div>
+            <div class="field"><label for="sDate">Дата старта (день №1)</label><input id="sDate" type="date"></div>
+            <button type="submit" class="btn">Сохранить настройки</button>
+            <div class="msg" id="setMsg" role="status"></div>
+          </form>
+        </details>
+      </section>
+    </aside>
+  </div>
+  <footer class="foot">
+    <span id="updated">Марафон $100 → $1 000 000</span>
+    <span><button class="linkbtn" id="loginBtn" type="button">Вход для автора</button><button class="linkbtn" id="logoutBtn" type="button" hidden>Выйти</button></span>
+  </footer>
+  <section class="card login" id="loginCard" hidden>
+    <form class="form" id="loginForm" novalidate>
+      <p>Вставь GitHub-токен с доступом к этому репозиторию. Он сохранится только в этом браузере.</p>
+      <div class="field"><label for="tokenIn">Токен</label><input id="tokenIn" type="password" autocomplete="off"></div>
+      <div class="actions"><button class="btn" type="submit">Войти</button><button class="btn-ghost" type="button" id="loginCancel">Отмена</button></div>
+      <div class="msg" id="loginMsg" role="status"></div>
+    </form>
+  </section>
+</div>
+
+<script>
+(() => {
+  const ROOMS = 6;
+  const DEFAULT_SETTINGS = { rooms:["GGPoker","PokerStars","ACR","CoinPoker","iPoker","Room 6"], startBR:100, goal:1000000, startDate:"" };
+  let settings = structuredClone(DEFAULT_SETTINGS);
+  let sessions = [];
+  let store = null;
+  let demo = false;
+  let range = "all", scale = "lin", showAll = false, editingId = null, isAdmin = false;
+  const getToken=()=>{ try{ return localStorage.getItem("marathon-gh-token")||""; }catch(e){ return ""; } };
+  const setToken=t=>{ try{ t?localStorage.setItem("marathon-gh-token",t):localStorage.removeItem("marathon-gh-token"); }catch(e){} };
+  const $ = id => document.getElementById(id);
+
+  /* ---------- formatting ---------- */
+  const nf = new Intl.NumberFormat("ru-RU",{maximumFractionDigits:0});
+  const money = v => (v<0?"−":"") + nf.format(Math.abs(Math.round(v))) + "$";
+  const signed = v => (v>0?"+":v<0?"−":"") + nf.format(Math.abs(Math.round(v))) + "$";
+  const short = v => { const a=Math.abs(v), s=v<0?"−":""; if(a>=1e6) return s+"$"+(a/1e6).toFixed(a>=1e7?0:2).replace(/\.?0+$/,"")+"M"; if(a>=1e3) return s+"$"+(a/1e3).toFixed(a>=1e5?0:1).replace(/\.0$/,"")+"k"; return s+"$"+Math.round(a); };
+  const cls = v => v>0?"up":v<0?"down":"";
+  const parse = s => { if(s==null) return 0; const n=parseFloat(String(s).replace(/\s/g,"").replace(",",".")); return isFinite(n)?n:0; };
+  const today = () => { const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
+  const MONTHS = ["янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"];
+  const dShort = s => { const [y,m,d]=s.split("-"); return (+d)+" "+MONTHS[+m-1]; };
+  const dayDiff = (a,b) => Math.round((Date.parse(b)-Date.parse(a))/864e5);
+
+  /* ---------- math ---------- */
+  function compute(){
+    const list = sessions.slice().sort((a,b)=> a.date===b.date ? (a.ts||0)-(b.ts||0) : a.date<b.date?-1:1);
+    const start = settings.startBR || 100;
+    const startDate = settings.startDate || (list[0]?.date) || today();
+    let prev = start, totW=0, totR=0, totM=0, plus=0, peak=start;
+    const rows = list.map(s=>{
+      const rooms=(s.rooms||[]).map(Number);
+      const br = rooms.reduce((a,b)=>a+(+b||0),0) + (+s.off||0) + (+s.usdt||0);
+      const res = br - prev + (+s.withdraw||0);
+      prev = br; totW += +s.withdraw||0; totR += +s.rakeback||0; totM += +s.mtt||0; if(res>0) plus++; peak=Math.max(peak,br);
+      return {...s, br, res, day: dayDiff(startDate, s.date)+1};
+    });
+    const last = rows[rows.length-1];
+    const br = last ? last.br : start;
+    const profit = br + totW - start;
+    return { rows, start, br, profit, totW, totR, totM, plus, peak, startDate,
+      perMtt: totM ? profit/totM : 0,
+      day: last ? last.day : 0,
+      lastRooms: last ? last.rooms : [], lastOff: last ? +last.off||0 : 0, lastUsdt: last ? +last.usdt||0 : 0 };
+  }
+
+  /* ---------- demo data (shown only while store is empty) ---------- */
+  function demoSessions(){
+    let seed=7; const rnd=()=> (seed=(seed*16807)%2147483647)/2147483647;
+    const out=[]; let rooms=[60,40,0,0,0,0], off=0, usdt=0; const d0=Date.parse("2026-08-01");
+    for(let i=0;i<42;i++){
+      const mtt = Math.round(140+rnd()*120);
+      const total = rooms.reduce((a,b)=>a+b,0)+off+usdt;
+      const swing = total*(rnd()*0.34-0.12);
+      rooms = rooms.map((r,k)=> Math.max(0, Math.round(r + swing*[.5,.3,.2,0,0,0][k])));
+      if(i===18){ rooms[2]+=0; }
+      let wd=0; if(i===30){ wd=Math.round(rooms[0]*0.15); rooms[0]-=wd; }
+      const rb = Math.max(1,Math.round(total*0.012));
+      if(i%7===6){ usdt += Math.round(rooms[0]*0.2); rooms[0]=Math.round(rooms[0]*0.8); }
+      const dt=new Date(d0+i*864e5*1.4); const ds=dt.toISOString().slice(0,10);
+      out.push({id:"demo"+i,date:ds,ts:i,mtt,rooms:rooms.slice(),off,usdt,withdraw:wd,rakeback:rb});
+    }
+    return out;
+  }
+
+  /* ---------- storage ---------- */
+  function localStore(){
+    const K="marathon100-1m";
+    const read=()=>{ try{ return JSON.parse(localStorage.getItem(K))||{sessions:[],settings:null}; }catch(e){ return {sessions:[],settings:null}; } };
+    const write=d=>{ try{ localStorage.setItem(K,JSON.stringify(d)); }catch(e){} };
+    let cb1, cb2;
+    return {
+      kind:"local",
+      subscribe(onS,onSet){ cb1=onS; cb2=onSet; const d=read(); onS(d.sessions); onSet(d.settings); },
+      async add(s){ const d=read(); s.id="s"+Date.now(); d.sessions.push(s); write(d); cb1(d.sessions); },
+      async update(id,s){ const d=read(); d.sessions=d.sessions.map(x=>x.id===id?{...s,id}:x); write(d); cb1(d.sessions); },
+      async remove(id){ const d=read(); d.sessions=d.sessions.filter(x=>x.id!==id); write(d); cb1(d.sessions); },
+      async saveSettings(st){ const d=read(); d.settings=st; write(d); cb2(st); }
+    };
+  }
+  function ghStore(owner,repo){
+    const API=`https://api.github.com/repos/${owner}/${repo}/contents/data.json`;
+    let sha=null, cb1, cb2;
+    const b64e=str=>{ const u=new TextEncoder().encode(str); let b=""; for(let i=0;i<u.length;i+=0x8000) b+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000)); return btoa(b); };
+    const b64d=b=>new TextDecoder().decode(Uint8Array.from(atob(b.replace(/\n/g,"")),ch=>ch.charCodeAt(0)));
+    const hdr=()=>({Authorization:"Bearer "+getToken(),Accept:"application/vnd.github+json"});
+    async function loadApi(){
+      const r=await fetch(API+"?t="+Date.now(),{headers:hdr(),cache:"no-store"});
+      if(r.status===404){ sha=null; return {sessions:[],settings:null}; }
+      if(r.status===401||r.status===403) throw new Error("Токен не подходит или у него нет доступа к репозиторию");
+      if(!r.ok) throw new Error("GitHub ответил "+r.status);
+      const j=await r.json(); sha=j.sha; return JSON.parse(b64d(j.content));
+    }
+    async function loadPublic(){
+      try{ const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"}); if(r.ok) return await r.json(); }catch(e){}
+      return {sessions:[],settings:null};
+    }
+    function emit(d){ cb1(d.sessions||[]); cb2(d.settings||null); }
+    async function mutate(fn,msg){
+      for(let attempt=0;attempt<2;attempt++){
+        const d=await loadApi(); d.sessions=d.sessions||[]; fn(d);
+        const body={message:msg,content:b64e(JSON.stringify(d,null,1))}; if(sha) body.sha=sha;
+        const r=await fetch(API,{method:"PUT",headers:{...hdr(),"Content-Type":"application/json"},body:JSON.stringify(body)});
+        if(r.ok){ const j=await r.json(); sha=j.content.sha; emit(d); return; }
+        if(r.status!==409&&r.status!==422) throw new Error(r.status===401||r.status===403?"Токен не подходит":"GitHub ответил "+r.status);
+      }
+      throw new Error("Конфликт версий, обнови страницу");
+    }
+    return {
+      kind:"gh",
+      verify:loadApi,
+      async subscribe(onS,onSet){ cb1=onS; cb2=onSet; let d; if(isAdmin){ try{ d=await loadApi(); }catch(e){ d=await loadPublic(); } } else d=await loadPublic(); emit(d); },
+      add:s=>mutate(d=>{ s.id="s"+Date.now().toString(36); d.sessions.push(s); },"Сессия "+s.date),
+      update:(id,s)=>mutate(d=>{ d.sessions=d.sessions.map(x=>x.id===id?{...s,id}:x); },"Правка сессии"),
+      remove:id=>mutate(d=>{ d.sessions=d.sessions.filter(x=>x.id!==id); },"Удаление сессии"),
+      saveSettings:st=>mutate(d=>{ d.settings=st; },"Настройки")
+    };
+  }
+  function dbStore(db){
+    const col = db.collection("sessions");
+    const cfg = db.doc("config/settings");
+    return {
+      kind:"db",
+      subscribe(onS,onSet,onErr){
+        col.onSnapshot(snap=> onS(snap.docs.map(d=>({id:d.id,...d.data()}))), onErr);
+        cfg.onSnapshot(snap=> onSet(snap.exists?snap.data():null), onErr);
+      },
+      add:s=>col.add(s),
+      update:(id,s)=>col.doc(id).set(s),
+      remove:id=>col.doc(id).delete(),
+      saveSettings:st=>cfg.set(st)
+    };
+  }
+
+  /* ---------- render: rail ---------- */
+  function renderRail(c){
+    const lo=Math.log10(c.start||100), hi=Math.log10(settings.goal||1e6);
+    const p = Math.max(0,Math.min(1,(Math.log10(Math.max(c.br,1))-lo)/(hi-lo)));
+    $("fill").style.width=(p*100).toFixed(2)+"%";
+    $("pct").textContent=(p*100).toFixed(1).replace(".",",")+"%";
+    const marks=[]; for(let e=Math.ceil(lo);e<=Math.floor(hi);e++) marks.push(e);
+    if(!marks.includes(lo)) marks.unshift(lo);
+    $("track").querySelectorAll(".mark").forEach(m=>m.remove());
+    $("marks").innerHTML="";
+    marks.forEach(e=>{
+      const x=(e-lo)/(hi-lo)*100;
+      if(x>0 && x<100){ const m=document.createElement("div"); m.className="mark"; m.style.left=x+"%"; $("track").appendChild(m); }
+      const s=document.createElement("span"); s.style.left=x+"%"; s.textContent=short(Math.pow(10,e)); $("marks").appendChild(s);
+    });
+    $("rfBr").textContent=money(c.br);
+    $("rfLeft").textContent=money(Math.max(0,(settings.goal||1e6)-c.br));
+    $("rfX").textContent="×"+(c.br/(c.start||100)).toFixed(c.br/(c.start||100)<10?2:0).replace(".",",");
+    $("rfMtt").textContent = c.perMtt>0 ? "~"+nf.format(Math.round(Math.max(0,(settings.goal||1e6)-c.br)/c.perMtt)) : "—";
+  }
+
+  /* ---------- render: tiles ---------- */
+  function renderTiles(c){
+    const n=c.rows.length;
+    const t=[
+      ["Банкролл", money(c.br), "", "пик "+money(c.peak)],
+      ["Профит", signed(c.profit), cls(c.profit), "с учётом выводов"],
+      ["День", n?"#"+c.day:"—", "", n?"старт "+dShort(c.startDate):"нет сессий"],
+      ["Сессий", nf.format(n), "", n?"последняя "+dShort(c.rows[n-1].date):""],
+      ["Турниров", nf.format(c.totM), "", "за весь марафон"],
+      ["МТТ / сессия", n?nf.format(Math.round(c.totM/n)):"—", "", "в среднем"],
+      ["Плюсовых сессий", n?Math.round(c.plus/n*100)+"%":"—", "", n?c.plus+" из "+n:""],
+      ["$ / МТТ", c.totM?(c.perMtt>=0?"+":"−")+Math.abs(c.perMtt).toFixed(2).replace(".",",")+"$":"—", cls(c.perMtt), "профит на турнир"]
+    ];
+    $("tiles").innerHTML=t.map(([l,v,k,s])=>`<div class="tile"><span class="label">${l}</span><span class="v ${k}">${v}</span>${s?`<span class="s">${s}</span>`:""}</div>`).join("");
+  }
+
+  /* ---------- charts ---------- */
+  function niceStep(raw){ const p=Math.pow(10,Math.floor(Math.log10(raw))); const f=raw/p; return (f<=1?1:f<=2?2:f<=5?5:10)*p; }
+  function renderBr(c){
+    const box=$("brChart");
+    let pts=[{date:c.startDate,br:c.start,res:0,start:true}, ...c.rows];
+    if(range!=="all" && c.rows.length){
+      const lastD=c.rows[c.rows.length-1].date, days=+range;
+      const idx=pts.findIndex(p=>dayDiff(p.date,lastD)<days);
+      pts = pts.slice(Math.max(0,idx-1));
+    }
+    if(pts.length<2){ box.innerHTML=`<div class="empty">Сессий пока нет — график появится после первой.</div>`; return; }
+    const W=Math.max(300,box.clientWidth), H=Math.round(Math.min(340,Math.max(220,W*0.42)));
+    const L=58,R=14,T=26,B=28;
+    const vals=pts.map(p=>p.br);
+    const useLog = scale==="log";
+    const f = v => useLog ? Math.log10(Math.max(v,1)) : v;
+    let mn=Math.min(...vals), mx=Math.max(...vals);
+    let ticks=[];
+    if(useLog){
+      let lo=Math.floor(Math.log10(Math.max(mn,1))), hi=Math.ceil(Math.log10(Math.max(mx,10)));
+      if(hi===lo) hi++;
+      for(let e=lo;e<=hi;e++){ ticks.push(Math.pow(10,e)); if(hi-lo<=2 && e<hi){ ticks.push(2*Math.pow(10,e)); ticks.push(5*Math.pow(10,e)); } }
+      ticks.sort((a,b)=>a-b); mn=Math.pow(10,lo); mx=Math.pow(10,hi);
+    } else {
+      if(mx===mn){ mx+=1; mn=Math.max(0,mn-1); }
+      const st=niceStep((mx-mn)/4); mn=Math.floor(mn/st)*st; mx=Math.ceil(mx/st)*st;
+      for(let v=mn;v<=mx+st/2;v+=st) ticks.push(v);
+    }
+    const y0=f(mn), y1=f(mx);
+    const X=i=> L + (W-L-R)*(i/(pts.length-1));
+    const Y=v=> T + (H-T-B)*(1-(f(v)-y0)/(y1-y0||1));
+    let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="График банкролла">`;
+    s+=`<defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d6a54a" stop-opacity=".22"/><stop offset="1" stop-color="#d6a54a" stop-opacity="0"/></linearGradient></defs>`;
+    ticks.forEach(v=>{ const y=Y(v); s+=`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="#262b35" stroke-width="1"/><text x="${L-8}" y="${y+4}" text-anchor="end">${short(v)}</text>`; });
+    // goal line if within view
+    const goal=settings.goal||1e6; if(goal<=mx && goal>=mn){ const y=Y(goal); s+=`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="#d6a54a" stroke-dasharray="4 4"/>`; }
+    // area
+    let area=`M${X(0)},${H-B}`; pts.forEach((p,i)=> area+=` L${X(i)},${Y(p.br)}`); area+=` L${X(pts.length-1)},${H-B} Z`;
+    s+=`<path d="${area}" fill="url(#ga)"/>`;
+    // segments
+    for(let i=1;i<pts.length;i++){ const up=pts[i].br>=pts[i-1].br; s+=`<line x1="${X(i-1)}" y1="${Y(pts[i-1].br)}" x2="${X(i)}" y2="${Y(pts[i].br)}" stroke="${up?"#43c08a":"#e8575c"}" stroke-width="2" stroke-linecap="round"/>`; }
+    // x labels
+    const nl=Math.min(5,pts.length); for(let k=0;k<nl;k++){ const i=Math.round(k*(pts.length-1)/(nl-1||1)); const anchor=k===0?"start":k===nl-1?"end":"middle"; s+=`<text x="${X(i)}" y="${H-8}" text-anchor="${anchor}">${dShort(pts[i].date)}</text>`; }
+    // peak
+    let pi=0; pts.forEach((p,i)=>{ if(p.br>=pts[pi].br) pi=i; });
+    const px=X(pi), py=Y(pts[pi].br);
+    const lab="пик "+short(pts[pi].br); const lw=lab.length*7+14; const lx=Math.min(Math.max(px-lw/2,L),W-R-lw);
+    s+=`<rect x="${lx}" y="${Math.max(2,py-26)}" width="${lw}" height="18" rx="5" fill="#1b1f27" stroke="#d6a54a"/><text x="${lx+lw/2}" y="${Math.max(2,py-26)+13}" text-anchor="middle" style="fill:#d6a54a">${lab}</text>`;
+    // last point
+    const li=pts.length-1; s+=`<circle cx="${X(li)}" cy="${Y(pts[li].br)}" r="4.5" fill="#d6a54a" stroke="#0c0e12" stroke-width="2"/>`;
+    s+=`<line id="hx" x1="0" x2="0" y1="${T}" y2="${H-B}" stroke="#8b8f99" stroke-dasharray="2 3" visibility="hidden"/><circle id="hc" r="4" fill="#e9e6df" visibility="hidden"/>`;
+    s+=`<rect x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}" fill="transparent" id="hit"/></svg><div class="tip" id="tip" hidden></div>`;
+    box.innerHTML=s;
+    const svg=box.querySelector("svg"), tip=$("tip"), hx=svg.querySelector("#hx"), hc=svg.querySelector("#hc");
+    const move=e=>{
+      const r=svg.getBoundingClientRect(); const sx=(e.clientX-r.left)*W/r.width;
+      const i=Math.max(0,Math.min(pts.length-1,Math.round((sx-L)/(W-L-R)*(pts.length-1))));
+      const p=pts[i], x=X(i), y=Y(p.br);
+      hx.setAttribute("x1",x);hx.setAttribute("x2",x);hx.setAttribute("visibility","visible");
+      hc.setAttribute("cx",x);hc.setAttribute("cy",y);hc.setAttribute("visibility","visible");
+      tip.hidden=false; tip.style.left=(x*r.width/W)+"px"; tip.style.top=(y*r.height/H)+"px";
+      tip.innerHTML = p.start ? `Старт · <b>${money(p.br)}</b>` : `${dShort(p.date)} · <b>${money(p.br)}</b> · <b class="${cls(p.res)}">${signed(p.res)}</b>`;
+    };
+    svg.addEventListener("pointermove",move); svg.addEventListener("pointerdown",move);
+    svg.addEventListener("pointerleave",()=>{ tip.hidden=true; hx.setAttribute("visibility","hidden"); hc.setAttribute("visibility","hidden"); });
+  }
+
+  function renderMtt(c){
+    const box=$("mttChart"); const rows=c.rows.slice(-40);
+    if(!rows.length){ box.innerHTML=`<div class="empty">Количество турниров по сессиям появится после первой записи.</div>`; $("mttAvg").textContent=""; return; }
+    const avg=c.totM/c.rows.length;
+    $("mttAvg").innerHTML=`среднее <b class="num">${Math.round(avg)}</b> · последняя <b class="num">${rows[rows.length-1].mtt||0}</b>`;
+    const W=Math.max(300,box.clientWidth), H=150, L=40,R=8,T=10,B=24;
+    let mx=Math.max(...rows.map(r=>+r.mtt||0),1); const st=niceStep(mx/3); mx=Math.ceil(mx/st)*st;
+    const bw=(W-L-R)/rows.length;
+    const Y=v=>T+(H-T-B)*(1-v/mx);
+    let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Турниров за сессию">`;
+    for(let v=0;v<=mx;v+=st){ s+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="#262b35"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end">${v}</text>`; }
+    rows.forEach((r,i)=>{ const v=+r.mtt||0; const h=(H-T-B)*v/mx; s+=`<rect x="${L+i*bw+bw*0.18}" y="${Y(v)}" width="${Math.max(1,bw*0.64)}" height="${h}" rx="2" fill="${r.res>=0?"#43c08a":"#e8575c"}" fill-opacity=".75"><title>${dShort(r.date)}: ${v} МТТ, ${signed(r.res)}</title></rect>`; });
+    s+=`<line x1="${L}" x2="${W-R}" y1="${Y(avg)}" y2="${Y(avg)}" stroke="#d6a54a" stroke-dasharray="4 4"/>`;
+    s+=`<text x="${L}" y="${H-6}">${dShort(rows[0].date)}</text><text x="${W-R}" y="${H-6}" text-anchor="end">${dShort(rows[rows.length-1].date)}</text>`;
+    box.innerHTML=s+"</svg>";
+  }
+
+  /* ---------- wallets ---------- */
+  function renderWallets(c){
+    const items = settings.rooms.map((n,i)=>({n:n||("Рум "+(i+1)),v:+(c.lastRooms[i]||0),w:false}))
+      .concat([{n:"Офф кошелёк",v:c.lastOff,w:true},{n:"USDT кошелёк",v:c.lastUsdt,w:true}]);
+    const tot=items.reduce((a,b)=>a+b.v,0)||1;
+    $("wallets").innerHTML=items.map(it=>`<div class="wl ${it.w?"wal":""}"><span>${esc(it.n)}</span><span class="num">${money(it.v)}</span><span class="bar"><i style="width:${(it.v/tot*100).toFixed(1)}%"></i></span></div>`).join("");
+    $("totWd").textContent=money(c.totW); $("totRb").textContent=money(c.totR);
+  }
+  const esc=s=>String(s).replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
+
+  /* ---------- history ---------- */
+  let armed=null, armTimer=null;
+  function renderHist(c){
+    const rows=c.rows.slice().reverse(); const shown = showAll?rows:rows.slice(0,15);
+    $("histCount").textContent = rows.length ? rows.length+" записей" : "";
+    if(!rows.length){ $("hist").innerHTML=`<tr><td colspan="8" class="empty" style="text-align:center;font-family:var(--f-body)">Сессий пока нет.</td></tr>`; $("moreBtn").hidden=true; return; }
+    $("hist").innerHTML=shown.map(r=>`<tr class="${r.id===editingId?"editing":""}">
+      <td>${dShort(r.date)}</td><td>#${r.day}</td><td>${nf.format(+r.mtt||0)}</td><td>${money(r.br)}</td>
+      <td class="${cls(r.res)}">${signed(r.res)}</td><td>${+r.withdraw?money(r.withdraw):"—"}</td><td>${+r.rakeback?money(r.rakeback):"—"}</td>
+      <td style="white-space:nowrap">${demo||!isAdmin?"":`<button class="rowbtn" data-edit="${r.id}" aria-label="Изменить">✎</button><button class="rowbtn ${armed===r.id?"danger":""}" data-del="${r.id}">${armed===r.id?"Удалить?":"×"}</button>`}</td></tr>`).join("");
+    $("moreBtn").hidden = rows.length<=15; $("moreBtn").textContent = showAll?"Свернуть":"Показать все ("+rows.length+")";
+  }
+  $("moreBtn").onclick=()=>{ showAll=!showAll; render(); };
+  $("hist").addEventListener("click",async e=>{
+    const ed=e.target.closest("[data-edit]"), del=e.target.closest("[data-del]");
+    if(ed){ startEdit(ed.dataset.edit); }
+    if(del){
+      const id=del.dataset.del;
+      if(armed===id){ armed=null; clearTimeout(armTimer); try{ await store.remove(id); if(editingId===id) stopEdit(); }catch(err){ flash("formMsg","Не удалось удалить: "+(err.message||err.code),true); } }
+      else { armed=id; clearTimeout(armTimer); armTimer=setTimeout(()=>{armed=null;render();},3000); render(); }
+    }
+  });
+
+  /* ---------- form ---------- */
+  function buildRoomFields(){
+    $("roomFields").innerHTML=settings.rooms.map((n,i)=>`<div class="field"><label for="fR${i}">${esc(n||("Рум "+(i+1)))}</label><input id="fR${i}" inputmode="decimal" placeholder="0"></div>`).join("");
+    $("roomNameFields").innerHTML=settings.rooms.map((n,i)=>`<div class="field"><label for="sR${i}">Рум ${i+1}</label><input id="sR${i}" value="${esc(n)}"></div>`).join("");
+    $("sStart").value=settings.startBR; $("sGoal").value=settings.goal; $("sDate").value=settings.startDate||"";
+  }
+  function readForm(){
+    return { date:$("fDate").value||today(), mtt:Math.round(parse($("fMtt").value)),
+      rooms:[...Array(ROOMS)].map((_,i)=>parse($("fR"+i).value)),
+      off:parse($("fOff").value), usdt:parse($("fUsdt").value), withdraw:parse($("fWd").value), rakeback:parse($("fRb").value) };
+  }
+  function prefill(){
+    const c=compute(); const last=c.rows[c.rows.length-1];
+    $("fDate").value=today(); $("fMtt").value=""; $("fWd").value=""; $("fRb").value="";
+    for(let i=0;i<ROOMS;i++) $("fR"+i).value = last && +last.rooms[i] ? last.rooms[i] : "";
+    $("fOff").value = last && +last.off ? last.off : ""; $("fUsdt").value = last && +last.usdt ? last.usdt : "";
+    updatePreview();
+  }
+  function prevBrFor(){
+    const c=compute(); const rows=c.rows;
+    if(editingId){ const i=rows.findIndex(r=>r.id===editingId); return i>0?rows[i-1].br:c.start; }
+    return rows.length?rows[rows.length-1].br:c.start;
+  }
+  function updatePreview(){
+    const f=readForm(); const br=f.rooms.reduce((a,b)=>a+b,0)+f.off+f.usdt; const res=br-prevBrFor()+f.withdraw;
+    $("pvBr").textContent=money(br); $("pvRes").textContent=signed(res); $("pvRes").className="v "+cls(res);
+  }
+  $("sessForm").addEventListener("input",updatePreview);
+  function startEdit(id){
+    const s=sessions.find(x=>x.id===id); if(!s) return; editingId=id;
+    $("fDate").value=s.date; $("fMtt").value=s.mtt||"";
+    for(let i=0;i<ROOMS;i++) $("fR"+i).value=+(s.rooms||[])[i]||"";
+    $("fOff").value=+s.off||""; $("fUsdt").value=+s.usdt||""; $("fWd").value=+s.withdraw||""; $("fRb").value=+s.rakeback||"";
+    $("formTitle").textContent="Правка сессии"; $("formHint").textContent=dShort(s.date); $("saveBtn").textContent="Сохранить изменения"; $("cancelEdit").hidden=false;
+    updatePreview(); render(); $("sessForm").scrollIntoView({behavior:"smooth",block:"start"});
+  }
+  function stopEdit(){ editingId=null; $("formTitle").textContent="Закрыть сессию"; $("formHint").textContent="остатки на конец сессии"; $("saveBtn").textContent="Сохранить сессию"; $("cancelEdit").hidden=true; prefill(); render(); }
+  $("cancelEdit").onclick=stopEdit;
+  function flash(id,text,bad){ const el=$(id); el.textContent=text; el.className="msg "+(bad?"down":"up"); clearTimeout(el._t); el._t=setTimeout(()=>{el.textContent="";},4000); }
+  $("sessForm").addEventListener("submit",async e=>{
+    e.preventDefault(); if(!store) return;
+    const f=readForm();
+    if(!f.mtt && !f.rooms.some(Boolean) && !f.off && !f.usdt){ flash("formMsg","Заполни хотя бы турниры и остатки.",true); return; }
+    $("saveBtn").disabled=true;
+    try{
+      if(editingId){ const old=sessions.find(x=>x.id===editingId); await store.update(editingId,{...f,ts:old?.ts||Date.now()}); flash("formMsg","Сессия обновлена."); stopEdit(); }
+      else { await store.add({...f,ts:Date.now()}); flash("formMsg","Сессия сохранена."); prefill(); }
+    }catch(err){ flash("formMsg","Не сохранилось: "+(err.message||err.code||err),true); }
+    $("saveBtn").disabled=false;
+  });
+  $("setForm").addEventListener("submit",async e=>{
+    e.preventDefault(); if(!store) return;
+    const st={ rooms:[...Array(ROOMS)].map((_,i)=>$("sR"+i).value.trim()||("Рум "+(i+1))), startBR:parse($("sStart").value)||100, goal:parse($("sGoal").value)||1e6, startDate:$("sDate").value||"" };
+    try{ await store.saveSettings(st); flash("setMsg","Настройки сохранены."); }catch(err){ flash("setMsg","Не сохранилось: "+(err.message||err.code),true); }
+  });
+
+  /* ---------- segmented controls ---------- */
+  function seg(id,set){ $(id).addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return; $(id).querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b)); set(b.dataset.v); render(); }); }
+  seg("rangeSeg",v=>range=v); seg("scaleSeg",v=>scale=v);
+
+  /* ---------- main render ---------- */
+  function render(){
+    const real = sessions;
+    demo = !real.length && store?.kind==="local";
+    const saved = sessions; if(demo) sessions = demoSessions();
+    const c = compute();
+    sessions = saved;
+    renderRail(c); renderTiles(c); renderBr(c); renderMtt(c); renderWallets(c); renderHist(c);
+    const b=$("modeBadge");
+    if(demo){ b.textContent="Пример данных — исчезнет после первой сессии"; b.className="badge demo"; }
+    else { const lastD=real.length?compute().rows.slice(-1)[0].date:null; b.textContent = isAdmin ? "Режим автора" : (lastD?"Обновлено "+dShort(lastD):"Старт скоро"); b.className=isAdmin?"badge demo":"badge"; }
+    $("subtitle").textContent = "Личный трекер банкролла · старт "+money(settings.startBR||100);
+  }
+  let rt; addEventListener("resize",()=>{ clearTimeout(rt); rt=setTimeout(render,120); });
+
+  /* ---------- boot ---------- */
+  buildRoomFields(); prefill(); render();
+  function onSessions(list){ sessions=list||[]; render(); if(!editingId && document.activeElement?.closest?.("#sessForm")==null) prefill(); }
+  function onSettings(st){ const n={...DEFAULT_SETTINGS,...(st||{})}; n.rooms=[...Array(ROOMS)].map((_,i)=>(n.rooms||[])[i]||DEFAULT_SETTINGS.rooms[i]); const changed=JSON.stringify(n)!==JSON.stringify(settings); settings=n; if(changed){ buildRoomFields(); prefill(); } render(); }
+  function applyAdmin(){ document.body.classList.toggle("admin",isAdmin); $("loginBtn").hidden=isAdmin; $("logoutBtn").hidden=!isAdmin||store?.kind!=="gh"; render(); }
+  function attach(s){ store=s; if(s.kind==="gh"){ isAdmin=!!getToken(); } applyAdmin(); s.subscribe(onSessions,onSettings); }
+  const host=location.hostname;
+  const gh = host.endsWith(".github.io") ? { owner:host.split(".")[0], repo:location.pathname.split("/").filter(Boolean)[0]||host } : null;
+  if(gh){ attach(ghStore(gh.owner,gh.repo)); }
+  else { isAdmin=true; document.body.classList.add("admin"); attach(localStore()); }
+
+  $("loginBtn").onclick=()=>{ $("loginCard").hidden=false; $("tokenIn").focus(); };
+  $("loginCancel").onclick=()=>{ $("loginCard").hidden=true; };
+  $("logoutBtn").onclick=()=>{ setToken(""); isAdmin=false; applyAdmin(); };
+  $("loginForm").addEventListener("submit",async e=>{
+    e.preventDefault(); const t=$("tokenIn").value.trim(); if(!t) return;
+    setToken(t);
+    try{ await store.verify(); isAdmin=true; $("tokenIn").value=""; $("loginCard").hidden=true; applyAdmin(); store.subscribe(onSessions,onSettings); }
+    catch(err){ setToken(""); flash("loginMsg",err.message,true); }
+  });
+})();
+</script>
+
+</body>
+</html>
