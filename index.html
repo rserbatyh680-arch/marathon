@@ -105,10 +105,11 @@ h1{font-size:clamp(20px,3.4vw,28px);letter-spacing:.01em;line-height:1.2}
 
 /* heads-up */
 .hu{display:flex;align-items:center;justify-content:space-between;gap:12px 24px;flex-wrap:wrap;margin:-4px 0 18px;padding:12px 18px;border-radius:var(--r);border:1px solid rgba(168,120,255,.55);background:linear-gradient(100deg,rgba(124,77,255,.22),rgba(124,77,255,.06) 60%,var(--surface))}
-.hu-title{display:flex;align-items:center;gap:10px;min-width:0}
-.hu-crown{font-size:30px;color:#c4a6ff;line-height:1}
-.hu-title b{display:block;font-family:"Russo One",var(--f-display);font-weight:400;font-size:15px;color:#fff;letter-spacing:.02em}
-.hu-title span{font-size:12px;color:#c4a6ff}
+.hu-title{display:flex;align-items:center;gap:12px;min-width:0}
+.hu-crown{width:44px;height:37px;flex:none;filter:drop-shadow(0 0 8px rgba(168,120,255,.45))}
+.hu-title b{display:block;font-family:"Russo One",var(--f-display);font-weight:400;font-size:17px;color:#fff;letter-spacing:.02em}
+.hu-title span{font-size:15px;color:#c4a6ff}
+.hu-title .emo{font-size:20px;vertical-align:-2px;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
 .hu-stats{display:flex;gap:28px}
 .hu-stats>div{display:grid;gap:2px}
 .hu-stats .label{color:#b9a3e6}
@@ -236,7 +237,7 @@ body:not(.admin) .admin-only{display:none!important}
   </section>
 
   <section class="hu" aria-label="Выигранные хедз-апы">
-    <div class="hu-title"><span class="hu-crown" aria-hidden="true">♛</span><div><b>Выигранные хедз-апы</b><span>для подкормки эго</span></div></div>
+    <div class="hu-title"><svg class="hu-crown" viewBox="0 0 48 40" aria-hidden="true"><path d="M4 12l10 9 10-15 10 15 10-9-4 22H8z" fill="#c4a6ff"/><rect x="8" y="34" width="32" height="4" rx="1.5" fill="#a07cf0"/><circle cx="4" cy="11" r="3" fill="#e2d4ff"/><circle cx="24" cy="5" r="3.2" fill="#e2d4ff"/><circle cx="44" cy="11" r="3" fill="#e2d4ff"/></svg><div><b>Выигранные хедз-апы</b><span>для подкормки эго <span class="emo">😎</span></span></div></div>
     <div class="hu-stats">
       <div><span class="label">Сыграно</span><span class="v num" id="huPlayed">—</span></div>
       <div><span class="label">Выиграно</span><span class="v num" id="huWon">—</span></div>
