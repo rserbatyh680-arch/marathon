@@ -562,6 +562,8 @@ body:not(.admin) .admin-only{display:none!important}
       const j=await r.json(); sha=j.sha; return JSON.parse(b64d(j.content));
     }
     async function loadPublic(){
+      // свежие данные прямо из репозитория (не ждут пересборки сайта), запасной вариант — копия на сайте
+      try{ const r=await fetch(`https://raw.githubusercontent.com/${owner}/${repo}/main/data.json?t=${Date.now()}`,{cache:"no-store"}); if(r.ok) return await r.json(); }catch(e){}
       try{ const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"}); if(r.ok) return await r.json(); }catch(e){}
       return {sessions:[],settings:null};
     }
