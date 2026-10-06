@@ -452,7 +452,7 @@ body:not(.admin) .admin-only{display:none!important}
     const list = sessions.slice().sort((a,b)=> a.date===b.date ? (a.ts||0)-(b.ts||0) : a.date<b.date?-1:1);
     const start = settings.startBR || 100;
     const startDate = settings.startDate || (list[0]?.date) || today();
-    let roiRes = 0, prev = start, cum = 0, cumPeak = 0, totW=0, totR=0, totM=0, plus=0, peak=start, buySum=0, buyM=0, hands=0, wrH=0, wrSum=0;
+    let cumMtt = 0, roiRes = 0, prev = start, cum = 0, cumPeak = 0, totW=0, totR=0, totM=0, plus=0, peak=start, buySum=0, buyM=0, hands=0, wrH=0, wrSum=0;
     const rows = list.map(s=>{
       const rooms=(s.rooms||[]).map(Number);
       const br = rooms.reduce((a,b)=>a+(+b||0),0) + (+s.off||0) + (+s.usdt||0);
@@ -461,7 +461,8 @@ body:not(.admin) .admin-only{display:none!important}
       if(+s.buyins && +s.mtt){ buySum+=+s.buyins; buyM+=+s.mtt; }
       hands += +s.hands||0; if(s.wr!=null && s.wr!=="" && +s.hands){ wrH+=+s.hands; wrSum+=(+s.wr)*(+s.hands); }
       prev = br; totW += +s.withdraw||0; totR += +s.rakeback||0; totM += +s.mtt||0; if(res>0) plus++; peak=Math.max(peak,br);
-      return {...s, br, res, cum, day: dayDiff(startDate, s.date)+1, abi: (+s.buyins && +s.mtt) ? s.buyins/s.mtt : null};
+      cumMtt += +s.mtt||0;
+      return {...s, br, res, cum, cumMtt, day: dayDiff(startDate, s.date)+1, abi: (+s.buyins && +s.mtt) ? s.buyins/s.mtt : null};
     });
     const last = rows[rows.length-1];
     const br = last ? last.br : start;
@@ -686,7 +687,7 @@ body:not(.admin) .admin-only{display:none!important}
   function niceStep(raw){ const p=Math.pow(10,Math.floor(Math.log10(raw))); const f=raw/p; return (f<=1?1:f<=2?2:f<=5?5:10)*p; }
   function renderBr(c){
     const box=$("brChart");
-    let pts=[{date:c.startDate,v:0,res:0,start:true}, ...c.rows.map(r=>({...r,v:r.cum}))];
+    let pts=[{date:c.startDate,v:0,res:0,start:true,cumMtt:0}, ...c.rows.map(r=>({...r,v:r.cum}))];
     if(range!=="all" && c.rows.length){
       const lastD=c.rows[c.rows.length-1].date, days=+range;
       const idx=pts.findIndex(p=>dayDiff(p.date,lastD)<days);
@@ -694,7 +695,7 @@ body:not(.admin) .admin-only{display:none!important}
     }
     if(pts.length<2){ box.innerHTML=`<div class="empty">Сессий пока нет — график появится после первой.</div>`; return; }
     const W=Math.max(300,box.clientWidth), H=Math.round(Math.min(340,Math.max(220,W*0.42)));
-    const L=62,R=14,T=26,B=28;
+    const L=62,R=14,T=26,B=44;
     const vals=pts.map(p=>p.v);
     let mn=Math.min(0,...vals), mx=Math.max(0,...vals);
     if(mx===mn){ mx+=1; }
@@ -710,7 +711,7 @@ body:not(.admin) .admin-only{display:none!important}
     let area=`M${X(0)},${y0}`; pts.forEach((p,i)=> area+=` L${X(i)},${Y(p.v)}`); area+=` L${X(pts.length-1)},${y0} Z`;
     s+=`<path d="${area}" fill="url(#ga)"/>`;
     for(let i=1;i<pts.length;i++){ const up=pts[i].v>=pts[i-1].v; s+=`<line x1="${X(i-1)}" y1="${Y(pts[i-1].v)}" x2="${X(i)}" y2="${Y(pts[i].v)}" stroke="${up?"#43c08a":"#e8575c"}" stroke-width="2" stroke-linecap="round"/>`; }
-    const nl=Math.min(5,pts.length); for(let k=0;k<nl;k++){ const i=Math.round(k*(pts.length-1)/(nl-1||1)); const anchor=k===0?"start":k===nl-1?"end":"middle"; s+=`<text x="${X(i)}" y="${H-8}" text-anchor="${anchor}">${dShort(pts[i].date)}</text>`; }
+    const nl=Math.min(W<520?3:5,pts.length); for(let k=0;k<nl;k++){ const i=Math.round(k*(pts.length-1)/(nl-1||1)); const anchor=k===0?"start":k===nl-1?"end":"middle"; s+=`<text x="${X(i)}" y="${H-24}" text-anchor="${anchor}">${dShort(pts[i].date)}</text><text x="${X(i)}" y="${H-8}" text-anchor="${anchor}" style="fill:#d6a54a">${nf.format(pts[i].cumMtt||0)} МТТ</text>`; }
     let pi=0; pts.forEach((p,i)=>{ if(p.v>=pts[pi].v) pi=i; });
     if(pts[pi].v>0){
       const px=X(pi), py=Y(pts[pi].v);
@@ -729,7 +730,7 @@ body:not(.admin) .admin-only{display:none!important}
       hx.setAttribute("x1",x);hx.setAttribute("x2",x);hx.setAttribute("visibility","visible");
       hc.setAttribute("cx",x);hc.setAttribute("cy",y);hc.setAttribute("visibility","visible");
       tip.hidden=false; tip.style.left=(x*r.width/W)+"px"; tip.style.top=(y*r.height/H)+"px";
-      tip.innerHTML = p.start ? `Старт · <b>0$</b>` : `${dShort(p.date)} · профит <b class="${cls(p.v)}">${signed(p.v)}</b> · сессия <b class="${cls(p.res)}">${signed(p.res)}</b>${p.note?`<br><span style="color:var(--brass)">${esc(p.note)}</span>`:""}`;
+      tip.innerHTML = p.start ? `Старт · <b>0$</b>` : `${dShort(p.date)} · профит <b class="${cls(p.v)}">${signed(p.v)}</b> · сессия <b class="${cls(p.res)}">${signed(p.res)}</b><br><span class="muted">турниров всего: ${nf.format(p.cumMtt||0)}</span>${p.note?`<br><span style="color:var(--brass)">${esc(p.note)}</span>`:""}`;
     };
     svg.addEventListener("pointermove",move); svg.addEventListener("pointerdown",move);
     svg.addEventListener("pointerleave",()=>{ tip.hidden=true; hx.setAttribute("visibility","hidden"); hc.setAttribute("visibility","hidden"); });
