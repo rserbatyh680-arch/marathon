@@ -1527,7 +1527,7 @@
    "mtt": 1,
    "rooms": [
     5600,
-    500,
+    700,
     1995,
     161,
     0,
@@ -1536,7 +1536,7 @@
    "off": 4750,
    "usdt": 4406,
    "withdraw": 351,
-   "rakeback": 0,
+   "rakeback": 200,
    "deposit": 0,
    "buyins": 109,
    "hands": 0,
