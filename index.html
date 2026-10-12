@@ -158,9 +158,8 @@ h2{font-size:14px;letter-spacing:.04em;text-transform:uppercase}
 .half{background:var(--surface);padding:18px 20px;display:grid;gap:6px;min-width:0}
 .half .big{font-size:clamp(24px,4vw,34px);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .half .s{font-size:12px;color:var(--muted)}
-.split.ev{margin-top:-8px}
-.split.ev .half{padding:10px 16px;gap:2px}
-.split.ev .big{font-size:clamp(18px,2.6vw,22px)}
+.split.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:560px){.split.three{grid-template-columns:1fr 1fr}.split.three .half:first-child{grid-column:1/-1}}
 
 /* segmented */
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
@@ -275,11 +274,8 @@ body:not(.admin) .admin-only{display:none!important}
     <div class="main">
       <div class="tiles" id="tiles"></div>
 
-      <section class="split" aria-label="Руки и винрейт">
+      <section class="split three" aria-label="Руки и EV винрейт">
         <div class="half"><span class="label">Сыграно рук</span><span class="big num" id="hHands">—</span><span class="s" id="hHandsS"></span></div>
-        <div class="half"><span class="label">Винрейт · bb/100</span><span class="big num" id="hWr">—</span><span class="s" id="hWrS"></span></div>
-      </section>
-      <section class="split ev" aria-label="EV винрейт">
         <div class="half"><span class="label">Total · EV bb/100</span><span class="big num" id="hEvT">—</span></div>
         <div class="half"><span class="label">До 60 bb · EV bb/100</span><span class="big num" id="hEv60">—</span></div>
       </section>
@@ -699,9 +695,6 @@ body:not(.admin) .admin-only{display:none!important}
       $(id).className = "big num "+(v!=null?cls(v):"");
     });
     $("hHandsS").textContent = lastH ? "за последнюю сессию "+nf.format(lastH.hands) : "вписывается при закрытии сессии";
-    $("hWr").textContent = c.wr!=null ? (c.wr>=0?"+":"−")+Math.abs(c.wr).toFixed(1).replace(".",",") : "—";
-    $("hWr").className = "big num "+(c.wr!=null?cls(c.wr):"");
-    $("hWrS").textContent = lastW ? "последняя сессия "+(+lastW.wr>=0?"+":"−")+Math.abs(+lastW.wr).toFixed(1).replace(".",",") : "среднее по рукам, из трекера";
     const curAbi=[...c.rows].reverse().find(r=>r.abi!=null)?.abi;
     const abiTile=`<div class="tile abi-tile"><span class="label">АБИ</span><div class="abi2"><div><span class="v">${c.abi!=null?abiFmt(c.abi):"—"}</span><span class="s">общий</span></div><div><span class="v now">${curAbi!=null?abiFmt(curAbi):"—"}</span><span class="s">играю сейчас</span></div></div></div>`;
     $("tiles").innerHTML=t.map(([l,v,k,s])=> k==="abi-split" ? abiTile : `<div class="tile"><span class="label">${l}</span><span class="v ${k}">${v}</span>${s?`<span class="s">${s}</span>`:""}</div>`).join("");
