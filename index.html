@@ -158,6 +158,9 @@ h2{font-size:14px;letter-spacing:.04em;text-transform:uppercase}
 .half{background:var(--surface);padding:18px 20px;display:grid;gap:6px;min-width:0}
 .half .big{font-size:clamp(24px,4vw,34px);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .half .s{font-size:12px;color:var(--muted)}
+.split.ev{margin-top:-8px}
+.split.ev .half{padding:10px 16px;gap:2px}
+.split.ev .big{font-size:clamp(18px,2.6vw,22px)}
 
 /* segmented */
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
@@ -275,6 +278,10 @@ body:not(.admin) .admin-only{display:none!important}
       <section class="split" aria-label="Руки и винрейт">
         <div class="half"><span class="label">Сыграно рук</span><span class="big num" id="hHands">—</span><span class="s" id="hHandsS"></span></div>
         <div class="half"><span class="label">Винрейт · bb/100</span><span class="big num" id="hWr">—</span><span class="s" id="hWrS"></span></div>
+      </section>
+      <section class="split ev" aria-label="EV винрейт">
+        <div class="half"><span class="label">Total · EV bb/100</span><span class="big num" id="hEvT">—</span></div>
+        <div class="half"><span class="label">До 60 bb · EV bb/100</span><span class="big num" id="hEv60">—</span></div>
       </section>
 
       <section class="card">
@@ -394,6 +401,11 @@ body:not(.admin) .admin-only{display:none!important}
               <div class="field"><label for="sHuW">Хедз-апов выиграно</label><input id="sHuW" inputmode="numeric"></div>
             </div>
             <div class="field"><label for="sTh">Работа над теорией, часов</label><input id="sTh" inputmode="decimal"></div>
+            <div class="frow">
+              <div class="field"><label for="sEvT">Total EV bb/100</label><input id="sEvT" inputmode="decimal"></div>
+              <div class="field"><label for="sEv60">До 60 bb, EV bb/100</label><input id="sEv60" inputmode="decimal"></div>
+              <div class="field"><label for="sHands">Рук всего (пусто — сумма сессий)</label><input id="sHands" inputmode="numeric"></div>
+            </div>
             <div class="fgroup">
               <span class="label">Ключевые точки пути</span>
               <div class="fgroup" id="msFields"></div>
@@ -679,7 +691,13 @@ body:not(.admin) .admin-only{display:none!important}
       ["Работа над теорией", nf.format(+(settings.theoryHours||0))+" ч", "theory", "визард, ХРК, флопзилла, обсуждение раздач"]
     ];
     const lastH=[...c.rows].reverse().find(r=>+r.hands), lastW=[...c.rows].reverse().find(r=>r.wr!=null&&r.wr!=="");
-    $("hHands").textContent = c.hands ? nf.format(c.hands) : "—";
+    const handsAll = +settings.handsTotal || c.hands;
+    $("hHands").textContent = handsAll ? nf.format(handsAll) : "—";
+    const evF=v=>(v===""||v==null||isNaN(+v))?null:+v;
+    [["hEvT",evF(settings.ev?.total)],["hEv60",evF(settings.ev?.u60)]].forEach(([id,v])=>{
+      $(id).textContent = v==null ? "—" : (v>=0?"+":"−")+Math.abs(v).toFixed(1).replace(".",",").replace(",0","");
+      $(id).className = "big num "+(v!=null?cls(v):"");
+    });
     $("hHandsS").textContent = lastH ? "за последнюю сессию "+nf.format(lastH.hands) : "вписывается при закрытии сессии";
     $("hWr").textContent = c.wr!=null ? (c.wr>=0?"+":"−")+Math.abs(c.wr).toFixed(1).replace(".",",") : "—";
     $("hWr").className = "big num "+(c.wr!=null?cls(c.wr):"");
@@ -797,6 +815,7 @@ body:not(.admin) .admin-only{display:none!important}
     $("roomNameFields").innerHTML=settings.rooms.map((n,i)=>`<div class="field"><label for="sR${i}">Рум ${i+1}</label><input id="sR${i}" value="${esc(n)}"></div>`).join("");
     $("sStart").value=settings.startBR; $("sGoal").value=settings.goal; $("sDate").value=settings.startDate||"";
     $("sTh").value=settings.theoryHours??0;
+    $("sEvT").value=settings.ev?.total??""; $("sEv60").value=settings.ev?.u60??""; $("sHands").value=settings.handsTotal||"";
     $("sHuP").value=settings.hu?.played??0; $("sHuW").value=settings.hu?.won??0;
     msDraft=(settings.milestones||[]).map(m=>({...m})); drawMs();
   }
@@ -869,7 +888,7 @@ body:not(.admin) .admin-only{display:none!important}
   });
   $("setForm").addEventListener("submit",async e=>{
     e.preventDefault(); if(!store) return;
-    const st={ rooms:[...Array(ROOMS)].map((_,i)=>$("sR"+i).value.trim()||("Рум "+(i+1))), startBR:parse($("sStart").value)||100, goal:parse($("sGoal").value)||1e6, startDate:$("sDate").value||"", theoryHours:parse($("sTh").value), hu:{played:Math.round(parse($("sHuP").value)),won:Math.round(parse($("sHuW").value))}, milestones:(syncMs(),msDraft.filter(m=>m.br>0&&m.label)) };
+    const st={ rooms:[...Array(ROOMS)].map((_,i)=>$("sR"+i).value.trim()||("Рум "+(i+1))), startBR:parse($("sStart").value)||100, goal:parse($("sGoal").value)||1e6, startDate:$("sDate").value||"", theoryHours:parse($("sTh").value), ev:{total:$("sEvT").value.trim()===""?null:parse($("sEvT").value), u60:$("sEv60").value.trim()===""?null:parse($("sEv60").value)}, handsTotal:Math.round(parse($("sHands").value))||null, hu:{played:Math.round(parse($("sHuP").value)),won:Math.round(parse($("sHuW").value))}, milestones:(syncMs(),msDraft.filter(m=>m.br>0&&m.label)) };
     try{ await store.saveSettings(st); flash("setMsg","Настройки сохранены."); }catch(err){ flash("setMsg","Не сохранилось: "+(err.message||err.code),true); }
   });
 
