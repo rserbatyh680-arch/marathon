@@ -181,6 +181,9 @@ h2{font-size:14px;letter-spacing:.04em;text-transform:uppercase}
 .field label{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .field input{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-family:var(--f-num);font-size:14px;min-width:0}
 .field input:focus{border-color:var(--brass);outline:none}
+.wnote{font-size:13px;color:var(--muted);background:var(--surface-2);border-radius:8px;padding:8px 12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.wnote[hidden]{display:none}
+.wnote .btn-ghost{padding:4px 10px;font-size:13px}
 .preview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;background:var(--surface-2);border-radius:8px;padding:10px 12px}
 .preview .v{font-family:var(--f-num);font-weight:600;font-size:17px}
 .btn{background:var(--brass);color:#1a1408;border:0;border-radius:8px;padding:11px 14px;font-weight:600}
@@ -349,6 +352,7 @@ body:not(.admin) .admin-only{display:none!important}
               <div class="field"><label for="fDep">Приход (пополнение)</label><input id="fDep" inputmode="decimal" placeholder="0"></div>
             </div>
           </div>
+          <div class="wnote" id="wNote" hidden><span id="wNoteText"></span> <button type="button" class="btn-ghost" id="wNoteBtn">Да, это вывод</button></div>
           <div class="preview">
             <div><div class="label">Новый БР</div><div class="v" id="pvBr">—</div></div>
             <div><div class="label">Сессия</div><div class="v" id="pvRes">—</div></div>
@@ -816,16 +820,27 @@ body:not(.admin) .admin-only{display:none!important}
     $("fOff").value = last && +last.off ? last.off : ""; $("fUsdt").value = last && +last.usdt ? last.usdt : "";
     updatePreview();
   }
-  function prevBrFor(){
+  function prevRowFor(){
     const c=compute(); const rows=c.rows;
-    if(editingId){ const i=rows.findIndex(r=>r.id===editingId); return i>0?rows[i-1].br:c.start; }
-    return rows.length?rows[rows.length-1].br:c.start;
+    if(editingId){ const i=rows.findIndex(r=>r.id===editingId); return i>0?rows[i-1]:null; }
+    return rows.length?rows[rows.length-1]:null;
+  }
+  function prevBrFor(){ const r=prevRowFor(); return r?r.br:(compute().start); }
+  /* сколько ушло из кошельков (офф + USDT) по сравнению с прошлой сессией, сверх уже записанного вывода */
+  function walletDrop(f){
+    const r=prevRowFor(); if(!r) return 0;
+    const drop=Math.round(((+r.off||0)+(+r.usdt||0)-f.off-f.usdt)*100)/100;
+    return Math.max(0, drop - f.withdraw);
   }
   function updatePreview(){
     const f=readForm(); const br=f.rooms.reduce((a,b)=>a+b,0)+f.off+f.usdt; const res=br-prevBrFor()+f.withdraw-f.rakeback-f.deposit;
     $("pvBr").textContent=money(br); $("pvRes").textContent=signed(res); $("pvRes").className="v "+cls(res);
     $("pvAbi").textContent = f.buyins&&f.mtt ? abiFmt(f.buyins/f.mtt) : "—";
+    const d=walletDrop(f);
+    $("wNote").hidden = !(d>0);
+    if(d>0) $("wNoteText").textContent = `Кошельки (офф + USDT) уменьшились на ${money(d)}. Если это вывод, а не перевод в рум, отметь его, чтобы он не попал в профит.`;
   }
+  $("wNoteBtn").onclick=()=>{ const f=readForm(); const d=walletDrop(f); if(d>0){ $("fWd").value=Math.round((f.withdraw+d)*100)/100; updatePreview(); } };
   $("sessForm").addEventListener("input",updatePreview);
   function startEdit(id){
     const s=sessions.find(x=>x.id===id); if(!s) return; editingId=id;
@@ -843,6 +858,8 @@ body:not(.admin) .admin-only{display:none!important}
     e.preventDefault(); if(!store) return;
     const f=readForm();
     if(!f.mtt && !f.rooms.some(Boolean) && !f.off && !f.usdt){ flash("formMsg","Заполни хотя бы турниры и остатки.",true); return; }
+    const d=walletDrop(f);
+    if(d>0 && confirm(`Кошельки уменьшились на ${money(d)}. Это вывод?\n\nОК — записать как вывод (БР уменьшится, профит нет).\nОтмена — это был перевод в рум, оставить как есть.`)){ f.withdraw=Math.round((f.withdraw+d)*100)/100; $("fWd").value=f.withdraw; }
     $("saveBtn").disabled=true;
     try{
       if(editingId){ const old=sessions.find(x=>x.id===editingId); await store.update(editingId,{...f,ts:old?.ts||Date.now()}); flash("formMsg","Сессия обновлена."); stopEdit(); }
