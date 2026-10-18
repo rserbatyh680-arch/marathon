@@ -1614,7 +1614,7 @@
    "date": "2026-10-17",
    "mtt": 17,
    "rooms": [
-    2514,
+    6002,
     700,
     2337,
     161,
@@ -1622,10 +1622,10 @@
     0
    ],
    "off": 4750,
-   "usdt": 4406,
+   "usdt": 3480,
    "withdraw": 0,
    "rakeback": 0,
-   "deposit": 0,
+   "deposit": 2562,
    "buyins": 1485,
    "hands": 0,
    "wr": null,
