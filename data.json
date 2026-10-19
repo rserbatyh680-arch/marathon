@@ -1631,6 +1631,28 @@
    "wr": null,
    "ts": 1792258493553,
    "id": "smvcofl38"
+  },
+  {
+   "date": "2026-10-19",
+   "mtt": 19,
+   "rooms": [
+    5000,
+    100,
+    1313,
+    161,
+    0,
+    0
+   ],
+   "off": 4750,
+   "usdt": 3480,
+   "withdraw": 1000,
+   "rakeback": 0,
+   "deposit": 0,
+   "buyins": 2293,
+   "hands": 0,
+   "wr": null,
+   "ts": 1792412426547,
+   "id": "smvf82wdn"
   }
  ]
 }
