@@ -850,7 +850,7 @@ body:not(.admin) .admin-only{display:none!important}
     $("pvAbi").textContent = f.buyins&&f.mtt ? abiFmt(f.buyins/f.mtt) : "—";
     const d=walletDrop(f);
     $("wNote").hidden = !(d>0);
-    if(d>0) $("wNoteText").textContent = `Кошельки (офф + USDT) уменьшились на ${money(d)}. Если это вывод, а не перевод в рум, отметь его, чтобы он не попал в профит.`;
+    if(d>0) $("wNoteText").textContent = `Кошельки (офф + USDT) уменьшились на ${money(d)}. Перевод в рум — ничего не делай. Вывод — впиши его сумму в поле «Вывод» (можно часть).`;
   }
   $("wNoteBtn").onclick=()=>{ const f=readForm(); const d=walletDrop(f); if(d>0){ $("fWd").value=Math.round((f.withdraw+d)*100)/100; updatePreview(); } };
   $("sessForm").addEventListener("input",updatePreview);
@@ -871,7 +871,12 @@ body:not(.admin) .admin-only{display:none!important}
     const f=readForm();
     if(!f.mtt && !f.rooms.some(Boolean) && !f.off && !f.usdt){ flash("formMsg","Заполни хотя бы турниры и остатки.",true); return; }
     const d=walletDrop(f);
-    if(d>0 && confirm(`Кошельки уменьшились на ${money(d)}. Это вывод?\n\nОК — записать как вывод (БР уменьшится, профит нет).\nОтмена — это был перевод в рум, оставить как есть.`)){ f.withdraw=Math.round((f.withdraw+d)*100)/100; $("fWd").value=f.withdraw; }
+    if(d>0){
+      const ans=prompt(`Кошельки (офф + USDT) уменьшились на ${money(d)}.\n\nСколько из этого — ВЫВОД (деньги ушли из банкролла)?\n• всё перевёл в рум — впиши 0\n• часть вывел, часть перевёл в рум — впиши только сумму вывода`, "0");
+      if(ans===null){ return; }
+      const w=Math.min(d,Math.max(0,parse(ans)));
+      if(w>0){ f.withdraw=Math.round((f.withdraw+w)*100)/100; $("fWd").value=f.withdraw; }
+    }
     $("saveBtn").disabled=true;
     try{
       if(editingId){ const old=sessions.find(x=>x.id===editingId); await store.update(editingId,{...f,ts:old?.ts||Date.now()}); flash("formMsg","Сессия обновлена."); stopEdit(); }
