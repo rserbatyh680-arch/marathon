@@ -12,7 +12,7 @@
   "goal": 1000000,
   "startDate": "2026-05-20",
   "hu": {
-   "played": 8,
+   "played": 9,
    "won": 6
   },
   "milestones": [
@@ -47,7 +47,7 @@
     "label": "Следующая вершина при БР 50–100k — пока не покорена"
    }
   ],
-  "theoryHours": 13,
+  "theoryHours": 15,
   "ev": {
    "total": 11,
    "u60": 16
