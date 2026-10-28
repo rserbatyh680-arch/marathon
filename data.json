@@ -1807,6 +1807,28 @@
    "wr": null,
    "ts": 1793130322856,
    "id": "smvr3hxqp"
+  },
+  {
+   "date": "2026-10-28",
+   "mtt": 22,
+   "rooms": [
+    955,
+    0,
+    1125,
+    0,
+    0,
+    0
+   ],
+   "off": 4750,
+   "usdt": 1804,
+   "withdraw": 0,
+   "rakeback": 0,
+   "deposit": 0,
+   "buyins": 957,
+   "hands": 0,
+   "wr": null,
+   "ts": 1793217766105,
+   "id": "smvsjk4t6"
   }
  ]
 }
