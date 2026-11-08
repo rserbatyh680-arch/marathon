@@ -1961,6 +1961,28 @@
    "wr": null,
    "ts": 1793989096276,
    "id": "smw5asegv"
+  },
+  {
+   "date": "2026-11-08",
+   "mtt": 17,
+   "rooms": [
+    1424,
+    0,
+    1988,
+    0,
+    0,
+    0
+   ],
+   "off": 4750,
+   "usdt": 1454,
+   "withdraw": 0,
+   "rakeback": 0,
+   "deposit": 0,
+   "buyins": 1380,
+   "hands": 0,
+   "wr": null,
+   "ts": 1794177334315,
+   "id": "smw8ev01j"
   }
  ]
 }
