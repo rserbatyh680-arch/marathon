@@ -12,7 +12,7 @@
 
 ## Модель данных
 Сессия: `date, ts, mtt, rooms[6], off, usdt, withdraw, rakeback, deposit, buyins, hands, wr (bb/100), note`.
-Румы (settings.rooms): GGPoker, Кешбек GG, PokerKing, RedStar, Рум 5, Рум 6. Плюс офф-кошелёк и USDT.
+Румы (settings.rooms): GGPoker, Кешбек GG, PokerKing, RedStar, Леджер кошелёк (USDT на Ledger, с 10 ноя, слот бывшего «Рум 5»), Рум 6. Плюс офф-кошелёк и USDT.
 
 ## Логика (согласовано с Романом, не менять без спроса)
 - БР = сумма всех румов + офф + USDT.
